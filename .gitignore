@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Logs and runtime
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# User config (generated at ~/.config/psiphon-cli/)
+# (kept in user home, not in repo)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Psiphon tunnel core binary (download separately per platform)
+psiphon-tunnel-core*
