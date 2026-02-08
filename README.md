@@ -32,14 +32,18 @@ node cli/index.js run
 ```
 
 1. Choose protocol: **1** auto, **2** conduit, **3** direct
-2. Tunnel starts — proxy: `127.0.0.1:8081` (HTTP), `127.0.0.1:1081` (SOCKS)
-3. Press **q** to stop
+2. Tunnel starts — split TUI: **stats** (top) and **logs** (bottom)
+3. Proxy: `127.0.0.1:8081` (HTTP), `127.0.0.1:1081` (SOCKS)
+4. Press **q** to stop
+
+Use `--no-tui` for plain output (e.g. when piping).
 
 ## Commands
 
 | Command | Description               |
 | ------- | ------------------------- |
 | `run`   | Interactive run (default) |
+| `run --no-tui` | Plain output, no split panel |
 | `stop`  | Stop the tunnel           |
 
 ## Protocol modes
