@@ -22,7 +22,35 @@ const CONDUIT_PROTOCOLS = [
 
 const PSIPHON_BIN = 'psiphon-tunnel-core-x86_64';
 const DEFAULT_CONFIG_DIR = path.join(os.homedir(), '.config', 'psiphon-cli');
-const DEFAULT_CORE_PATH = path.join(__dirname, '..', 'psiphon-tunnel-core-x86_64');
+
+function getProjectRoot() {
+    if (process.pkg) {
+        return path.dirname(process.execPath);
+    }
+    return path.join(__dirname, '..');
+}
+
+function getCorePath() {
+    const nextToBinary = path.join(path.dirname(process.execPath), PSIPHON_BIN);
+    if (process.pkg) {
+        if (fs.existsSync(nextToBinary)) {
+            return nextToBinary;
+        }
+        const bundledPath = path.join(__dirname, '..', PSIPHON_BIN);
+        if (fs.existsSync(bundledPath)) {
+            const extractedPath = path.join(DEFAULT_CONFIG_DIR, PSIPHON_BIN);
+            ensureConfigDir(DEFAULT_CONFIG_DIR);
+            if (!fs.existsSync(extractedPath)) {
+                fs.copyFileSync(bundledPath, extractedPath);
+                fs.chmodSync(extractedPath, 0o755);
+            }
+            return extractedPath;
+        }
+    }
+    return path.join(getProjectRoot(), PSIPHON_BIN);
+}
+
+const DEFAULT_CORE_PATH = getCorePath();
 
 function getDefaultConfigPath() {
     return path.join(__dirname, '..', 'configs', 'psiphon.config');

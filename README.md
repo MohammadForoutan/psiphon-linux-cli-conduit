@@ -13,6 +13,16 @@ Unofficial Psiphon VPN client for Linux (CLI).
 npm install
 ```
 
+## Build
+
+```bash
+npm run build
+```
+
+Produces `dist/psiphon-cli` — standalone Linux x64 binary (~54MB, no Node.js needed). Core and configs are bundled; on first run the core is extracted to `~/.config/psiphon-cli/`.
+
+**Build requires** `psiphon-tunnel-core-x86_64` in the project root. Download from [Psiphon tunnel core binaries](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries) (Linux folder).
+
 ## Usage
 
 ```bash

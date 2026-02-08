@@ -9,11 +9,18 @@
   "scripts": {
     "start": "node cli/index.js run",
     "cli": "node cli/index.js",
-    "run": "node cli/index.js run"
+    "run": "node cli/index.js run",
+    "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json"
   },
   "keywords": ["psiphon", "vpn", "cli", "conduit"],
   "license": "MIT",
+  "pkg": {
+    "assets": ["configs/**/*", "psiphon-tunnel-core-x86_64"]
+  },
   "dependencies": {
     "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
   }
 }
