@@ -472,7 +472,7 @@ async function runApp(options) {
 program
   .name("psiphon-cli")
   .description("Interactive Psiphon tunnel (Conduit, Direct, or Auto)")
-  .version("1.0.0");
+  .version("0.2.0");
 
 program
   .command("run", { isDefault: true })
