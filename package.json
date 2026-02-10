@@ -1,24 +1,41 @@
 {
-  "name": "psiphon-linux",
-  "version": "0.2.0",
-  "description": "Unofficial Psiphon VPN client for Linux - CLI",
+  "name": "psiphon-linux-cli",
+  "version": "1.0.0",
+  "description": "Unofficial Psiphon VPN client for Linux — simple CLI (connect, disconnect, stats)",
   "main": "cli/index.js",
   "bin": {
+    "psiphon-cli": "cli/index.js",
     "psiphon": "cli/index.js"
   },
   "scripts": {
-    "start": "node cli/index.js run",
+    "start": "node cli/index.js connect",
     "cli": "node cli/index.js",
-    "run": "node cli/index.js run",
+    "connect": "node cli/index.js connect",
+    "disconnect": "node cli/index.js disconnect",
+    "stats": "node cli/index.js stats",
     "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json"
   },
   "keywords": [
     "psiphon",
     "vpn",
     "cli",
-    "conduit"
+    "conduit",
+    "linux",
+    "proxy",
+    "tunnel"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MohammadForoutan/psiphon-linux-cli-conduit.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "cli/",
+    "configs/"
+  ],
   "pkg": {
     "assets": [
       "configs/**/*",
@@ -26,7 +43,6 @@
     ]
   },
   "dependencies": {
-    "blessed": "^0.1.81",
     "commander": "^12.1.0"
   },
   "devDependencies": {
