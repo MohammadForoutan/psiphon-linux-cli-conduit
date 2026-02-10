@@ -3,6 +3,25 @@
 const path = require("path");
 const os = require("os");
 
+const PLATFORM = process.platform; // 'linux' | 'win32'
+const IS_WIN = PLATFORM === "win32";
+
+function getPsiphonBinName() {
+  if (PLATFORM === "win32") {
+    return process.arch === "x64"
+      ? "psiphon-tunnel-core-windows-amd64.exe"
+      : "psiphon-tunnel-core-i686.exe";
+  }
+  return "psiphon-tunnel-core-x86_64";
+}
+
+function getDefaultConfigDir() {
+  if (PLATFORM === "win32") {
+    return path.join(os.homedir(), "AppData", "Local", "psiphon-cli");
+  }
+  return path.join(os.homedir(), ".config", "psiphon-cli");
+}
+
 const DIRECT_PROTOCOLS = [
   "SSH",
   "OSSH",
@@ -33,8 +52,8 @@ const CONDUIT_PROTOCOLS = [
   "INPROXY-WEBRTC-SHADOWSOCKS-OSSH",
 ];
 
-const PSIPHON_BIN = "psiphon-tunnel-core-x86_64";
-const DEFAULT_CONFIG_DIR = path.join(os.homedir(), ".config", "psiphon-cli");
+const PSIPHON_BIN = getPsiphonBinName();
+const DEFAULT_CONFIG_DIR = getDefaultConfigDir();
 const STATS_UPDATE_MS = 2000;
 
 const FILES = {
@@ -44,6 +63,10 @@ const FILES = {
 };
 
 module.exports = {
+  PLATFORM,
+  IS_WIN,
+  getPsiphonBinName,
+  getDefaultConfigDir,
   DIRECT_PROTOCOLS,
   CONDUIT_PROTOCOLS,
   PSIPHON_BIN,

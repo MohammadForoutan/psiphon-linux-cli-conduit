@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
-const { PSIPHON_BIN, STATS_UPDATE_MS, FILES } = require("./constants");
+const { PSIPHON_BIN, STATS_UPDATE_MS, FILES, IS_WIN } = require("./constants");
 const config = require("./config");
 const stats = require("./stats");
 
@@ -22,7 +22,7 @@ function getCorePath() {
       config.ensureConfigDir(config.DEFAULT_CONFIG_DIR);
       if (!fs.existsSync(extractedPath)) {
         fs.copyFileSync(bundledPath, extractedPath);
-        fs.chmodSync(extractedPath, 0o755);
+        if (!IS_WIN) fs.chmodSync(extractedPath, 0o755);
       }
       return extractedPath;
     }

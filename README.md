@@ -1,11 +1,13 @@
-# Psiphon Linux CLI
+# Psiphon CLI
 
-Unofficial Psiphon VPN client for Linux — a simple CLI to connect, disconnect, and view tunnel stats.
+Unofficial Psiphon VPN client — CLI for Linux and Windows to connect, disconnect, and view tunnel stats.
 
 ## Requirements
 
 - **Node.js** 14+
-- **Psiphon tunnel core** binary: [psiphon-tunnel-core-x86_64](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries) — place it in the project root (or use `--core <path>`)
+- **Psiphon tunnel core** binary for your platform from [psiphon-tunnel-core-binaries](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries). Place it in the project root (or use `--core <path>`):
+  - **Linux:** `psiphon-tunnel-core-x86_64` (in `linux/`)
+  - **Windows:** `psiphon-tunnel-core-windows-amd64.exe` (64-bit) or `psiphon-tunnel-core-i686.exe` (32-bit) in `windows/`
 
 ## Install
 
@@ -71,8 +73,12 @@ psiphon-cli disconnect
 
 | Option              | Description                          |
 | ------------------- | ------------------------------------ |
-| `-c, --config-dir`  | Config directory (default: `~/.config/psiphon-cli`) |
-| `--core <path>`     | Path to `psiphon-tunnel-core-x86_64`  |
+| `-c, --config-dir`  | Config directory (see below for defaults per OS) |
+| `--core <path>`     | Path to the Psiphon tunnel core binary for your platform |
+
+**Default config directory:**
+- Linux: `~/.config/psiphon-cli`
+- Windows: `%LOCALAPPDATA%\psiphon-cli` (e.g. `C:\Users\<you>\AppData\Local\psiphon-cli`)
 
 Example:
 
@@ -91,13 +97,14 @@ psiphon-cli --core /path/to/psiphon-tunnel-core-x86_64 connect -r DE
 
 ## Build standalone binary
 
-```bash
-npm run build
-```
+Build produces a standalone executable (no Node.js required). Place the matching core binary in the project root before building.
 
-Produces `dist/psiphon-cli` — standalone Linux x64 binary (no Node.js required). Config and core are bundled; on first run the core is extracted to `~/.config/psiphon-cli/`.
+| Platform | Command           | Output               | Core binary in project root |
+| -------- | ----------------- | -------------------- | ---------------------------- |
+| Linux    | `npm run build`   | `dist/psiphon-cli`   | `psiphon-tunnel-core-x86_64` |
+| Windows  | `npm run build:win` | `dist/psiphon-cli.exe` | `psiphon-tunnel-core-windows-amd64.exe` or `psiphon-tunnel-core-i686.exe` |
 
-**Requires** `psiphon-tunnel-core-x86_64` in the project root. Get it from [Psiphon tunnel core binaries](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries) (Linux).
+On first run, the bundled core is extracted to the default config directory for your OS.
 
 ## Route whole system through tunnel
 

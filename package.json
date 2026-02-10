@@ -1,7 +1,7 @@
 {
   "name": "psiphon-linux-cli",
   "version": "1.0.0",
-  "description": "Unofficial Psiphon VPN client for Linux — simple CLI (connect, disconnect, stats)",
+  "description": "Unofficial Psiphon VPN client — CLI for Linux and Windows (connect, disconnect, stats)",
   "main": "cli/index.js",
   "bin": {
     "psiphon-cli": "cli/index.js",
@@ -13,7 +13,8 @@
     "connect": "node cli/index.js connect",
     "disconnect": "node cli/index.js disconnect",
     "stats": "node cli/index.js stats",
-    "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json"
+    "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json",
+    "build:win": "pkg cli/index.js --targets node18-windows-x64 --output dist/psiphon-cli.exe --config package.json"
   },
   "keywords": [
     "psiphon",
@@ -21,6 +22,7 @@
     "cli",
     "conduit",
     "linux",
+    "windows",
     "proxy",
     "tunnel"
   ],
@@ -39,7 +41,9 @@
   "pkg": {
     "assets": [
       "configs/**/*",
-      "psiphon-tunnel-core-x86_64"
+      "psiphon-tunnel-core-x86_64",
+      "psiphon-tunnel-core-windows-amd64.exe",
+      "psiphon-tunnel-core-i686.exe",
     ]
   },
   "dependencies": {
