@@ -43,7 +43,7 @@
       "configs/**/*",
       "psiphon-tunnel-core-x86_64",
       "psiphon-tunnel-core-windows-amd64.exe",
-      "psiphon-tunnel-core-i686.exe",
+      "psiphon-tunnel-core-i686.exe"
     ]
   },
   "dependencies": {
