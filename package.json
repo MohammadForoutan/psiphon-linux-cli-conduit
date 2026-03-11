@@ -11,6 +11,7 @@
     "start": "node cli/index.js connect",
     "cli": "node cli/index.js",
     "connect": "node cli/index.js connect",
+    "logs": "node cli/index.js logs",
     "disconnect": "node cli/index.js disconnect",
     "stats": "node cli/index.js stats",
     "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json",

@@ -51,13 +51,28 @@ function runConnect(configDir, corePath, protocol, options = {}) {
       startedAt: tunnelStartTime,
     };
     let lastBytesTime = 0;
+    let logStream = null;
     let stdoutBuf = "";
     let stderrBuf = "";
     const pidPath = path.join(configDir, FILES.PID);
     const statsPath = path.join(configDir, FILES.STATS);
+    const logPath = path.join(configDir, FILES.LOG);
+
+    try {
+      logStream = fs.createWriteStream(logPath, { flags: "w" });
+    } catch (_) {
+      logStream = null;
+    }
 
     function processLine(line) {
       if (!line.trim()) return;
+      if (logStream) {
+        try {
+          logStream.write(line + "\n");
+        } catch (_) {
+          // ignore log write errors
+        }
+      }
       try {
         const notice = JSON.parse(line);
         const { noticeType, data = {} } = notice;
@@ -143,6 +158,10 @@ function runConnect(configDir, corePath, protocol, options = {}) {
     function cleanup() {
       clearInterval(statsInterval);
       try {
+        if (logStream) {
+          logStream.end();
+          logStream = null;
+        }
         if (fs.existsSync(pidPath)) fs.unlinkSync(pidPath);
         if (fs.existsSync(statsPath)) fs.unlinkSync(statsPath);
       } catch (_) {}

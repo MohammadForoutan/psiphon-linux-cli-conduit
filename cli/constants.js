@@ -60,6 +60,7 @@ const FILES = {
   CONFIG: "psiphon.config",
   STATS: "stats.json",
   PID: "psiphon.pid",
+  LOG: "psiphon.log",
 };
 
 module.exports = {

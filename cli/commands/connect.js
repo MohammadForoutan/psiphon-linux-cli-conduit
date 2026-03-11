@@ -27,8 +27,23 @@ async function runConnectCommand(options) {
       : await prompts.promptRegion(rl);
   rl.close();
 
+  const upstreamProxyUrl =
+    (options.upstreamProxy && options.upstreamProxy.trim()) ||
+    (process.env.PSIPHON_UPSTREAM_PROXY &&
+      process.env.PSIPHON_UPSTREAM_PROXY.trim()) ||
+    "";
+
   config.ensureConfigDir(configDir);
-  config.buildConfig(configDir, { protocol, region: region || "" });
+  try {
+    config.buildConfig(configDir, {
+      protocol,
+      region: region || "",
+      upstreamProxyUrl,
+    });
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
   await core.runConnect(configDir, corePath, protocol, options);
   process.exit(0);
 }

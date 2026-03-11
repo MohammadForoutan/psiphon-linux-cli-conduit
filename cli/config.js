@@ -40,6 +40,22 @@ function getOrCreateConfig(configDir) {
   return config;
 }
 
+const SUPPORTED_PROXY_SCHEMES = ["http:", "https:", "socks5:"];
+
+function validateUpstreamProxyUrl(url) {
+  if (!url || typeof url !== "string" || !url.trim()) return null;
+  let parsed;
+  try {
+    parsed = new URL(url.trim());
+  } catch {
+    return "Upstream proxy URL is not a valid URL";
+  }
+  if (!SUPPORTED_PROXY_SCHEMES.includes(parsed.protocol)) {
+    return `Upstream proxy URL must use one of: ${SUPPORTED_PROXY_SCHEMES.join(", ")}`;
+  }
+  return null;
+}
+
 function buildConfig(configDir, options) {
   const config = getOrCreateConfig(configDir);
   config.EgressRegion = options.region || "";
@@ -53,6 +69,18 @@ function buildConfig(configDir, options) {
     delete config.LimitTunnelProtocols;
   }
 
+  const upstreamProxyUrl =
+    options.upstreamProxyUrl && String(options.upstreamProxyUrl).trim();
+  if (upstreamProxyUrl) {
+    const err = validateUpstreamProxyUrl(upstreamProxyUrl);
+    if (err) {
+      throw new Error(`Invalid upstream proxy: ${err}`);
+    }
+    config.UpstreamProxyURL = upstreamProxyUrl;
+  } else {
+    delete config.UpstreamProxyURL;
+  }
+
   const configPath = path.join(configDir, FILES.CONFIG);
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
   return configPath;
@@ -64,5 +92,6 @@ module.exports = {
   ensureConfigDir,
   getOrCreateConfig,
   buildConfig,
+  validateUpstreamProxyUrl,
   DEFAULT_CONFIG_DIR,
 };
