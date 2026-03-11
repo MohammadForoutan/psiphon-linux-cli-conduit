@@ -76,6 +76,15 @@ function runConnect(configDir, corePath, protocol, options = {}) {
       try {
         const notice = JSON.parse(line);
         const { noticeType, data = {} } = notice;
+        if (
+          noticeType === "RemoteServerListDownloadFailed" ||
+          noticeType === "RemoteServerListFetchFailed"
+        ) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            "Remote server list download failed; psiphon-tunnel-core will rely on any cached local list if available.",
+          );
+        }
         if (noticeType === "ListeningSocksProxyPort")
           statsState.socksProxy = `127.0.0.1:${data.port}`;
         if (noticeType === "ListeningHttpProxyPort")

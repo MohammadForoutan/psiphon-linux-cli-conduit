@@ -37,6 +37,20 @@ function getOrCreateConfig(configDir) {
   }
   const config = JSON.parse(fs.readFileSync(defaultConfigPath, "utf-8"));
   fs.writeFileSync(userConfigPath, JSON.stringify(config, null, 2), "utf-8");
+  // Seed bundled server list snapshot into user config dir on first run
+  try {
+    const defaultListPath = path.join(
+      getProjectRoot(),
+      "configs",
+      "server_list_compressed",
+    );
+    const userListPath = path.join(configDir, "remote_server_list");
+    if (fs.existsSync(defaultListPath) && !fs.existsSync(userListPath)) {
+      fs.copyFileSync(defaultListPath, userListPath);
+    }
+  } catch (_) {
+    // ignore seeding errors; core can still attempt remote download
+  }
   return config;
 }
 
@@ -64,7 +78,7 @@ function buildConfig(configDir, options) {
   if (options.protocol === "conduit") {
     config.LimitTunnelProtocols = CONDUIT_PROTOCOLS;
   } else if (options.protocol === "direct") {
-    config.LimitTunnelProtocols = DIRECT_PROTOCOLS;
+    config.LimitTunnelProtocols = DIRECT_PROTOCOLS.slice();
   } else {
     delete config.LimitTunnelProtocols;
   }
@@ -79,6 +93,16 @@ function buildConfig(configDir, options) {
     config.UpstreamProxyURL = upstreamProxyUrl;
   } else {
     delete config.UpstreamProxyURL;
+  }
+
+   if (
+    !config.RemoteServerListUrl ||
+    !config.RemoteServerListSignaturePublicKey
+  ) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "Warning: RemoteServerListUrl/RemoteServerListSignaturePublicKey are not set in psiphon.config; official server list will not be used.",
+    );
   }
 
   const configPath = path.join(configDir, FILES.CONFIG);

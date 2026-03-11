@@ -8,6 +8,7 @@ const { runConnectCommand } = require("./commands/connect");
 const { runDisconnectCommand } = require("./commands/disconnect");
 const { runStatsCommand } = require("./commands/stats");
 const { runLogsCommand } = require("./commands/logs");
+const { runRefreshServerListCommand } = require("./commands/refresh-server-list");
 
 program
   .name("psiphon-cli")
@@ -68,6 +69,16 @@ program
       }
     }
     runLogsCommand(merged);
+  });
+
+program
+  .command("refresh-server-list")
+  .description(
+    "Download or update the official Psiphon server list into the config directory",
+  )
+  .action((options) => {
+    const globalOpts = program.opts();
+    runRefreshServerListCommand({ ...globalOpts, ...options });
   });
 
 program.parse();

@@ -105,6 +105,24 @@ psiphon-cli logs -n 100   # show last 100 lines, then follow
 
 Run this in another terminal after starting `psiphon-cli connect`. Logs are for the current session and are reset each time you start a new connection.
 
+## Configuration
+
+Configuration for the Psiphon core is driven by a JSON file named `psiphon.config`.
+
+- This CLI ships with a default config at `configs/psiphon.config` that is based on the public free-network example from ProxySmart’s Psiphon Linux guide (it sets `RemoteServerListUrl`, `RemoteServerListSignaturePublicKey`, and related fields to use Psiphon’s official server list).[4](https://proxysmart.org/psiphon-setting-up-linux-client-with-free-servers/)
+- On first run, that file is copied into your user config directory (see **Default config directory** above). A bundled snapshot of the official server list (`configs/server_list_compressed`) is also copied into the config directory as `remote_server_list`, matching `RemoteServerListDownloadFilename`.
+- On each `connect`, the CLI updates only a few fields (region, protocol limits, traffic stats emission) and leaves the server list settings intact so that `psiphon-tunnel-core` can download and verify the official list of servers. When the remote URL is blocked, the core can still fall back to the cached `remote_server_list` file.
+
+Advanced users can edit the `psiphon.config` in their config directory directly if they want to override server behavior (for example, using specific server tokens instead of the remote list). When `RemoteServerListUrl` and `RemoteServerListSignaturePublicKey` are removed, the CLI will warn that the official server list is not configured, but it will still respect your custom config.
+
+You can manually refresh the cached server list when you have good connectivity:
+
+```bash
+psiphon-cli refresh-server-list
+```
+
+This downloads the latest list from `RemoteServerListUrl` into your config directory (overwriting the previous `remote_server_list`), which can then be used later in more restricted networks.
+
 ## Upstream proxy
 
 All tunnel traffic can be routed through an upstream HTTP or SOCKS5 proxy. Use this when you are behind a corporate proxy or want to chain through another proxy.

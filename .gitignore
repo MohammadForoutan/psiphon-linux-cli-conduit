@@ -23,3 +23,6 @@ Thumbs.db
 
 # Psiphon tunnel core binary (download separately per platform)
 psiphon-tunnel-core*
+
+# Cursor Plans
+.cursor/plans
