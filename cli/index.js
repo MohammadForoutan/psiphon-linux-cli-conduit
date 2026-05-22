@@ -35,6 +35,10 @@ program
     "--enable-timeout",
     "use psiphon-tunnel-core establish tunnel timeout (disabled by default)",
   )
+  .option(
+    "--enable-lan",
+    "listen on all interfaces so HTTP/SOCKS proxies are reachable on the LAN (localhost only by default)",
+  )
   .action((options) => {
     const globalOpts = program.opts();
     runConnectCommand({ ...globalOpts, ...options });

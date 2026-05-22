@@ -81,6 +81,12 @@ function buildConfig(configDir, options) {
     config.EstablishTunnelTimeoutSeconds = 0;
   }
 
+  if (options.enableLan) {
+    config.ListenInterface = "any";
+  } else {
+    delete config.ListenInterface;
+  }
+
   if (options.protocol === "conduit") {
     config.LimitTunnelProtocols = CONDUIT_PROTOCOLS;
   } else if (options.protocol === "direct") {

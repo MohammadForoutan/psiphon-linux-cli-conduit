@@ -40,6 +40,7 @@ async function runConnectCommand(options) {
       region: region || "",
       upstreamProxyUrl,
       enableTimeout: Boolean(options.enableTimeout),
+      enableLan: Boolean(options.enableLan),
     });
   } catch (err) {
     console.error(err.message);

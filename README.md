@@ -83,6 +83,7 @@ psiphon-cli disconnect
 | `-r, --region <code>`      | Egress region (ISO country code) |
 | `-p, --upstream-proxy <url>` | Upstream proxy URL (see [Upstream proxy](#upstream-proxy)) |
 | `--enable-timeout`         | Use psiphon-tunnel-core establish tunnel timeout (off by default; keeps retrying until connected) |
+| `--enable-lan`             | Listen on all interfaces so HTTP/SOCKS proxies are reachable on the LAN (localhost only by default) |
 
 **Default config directory:**
 - Linux: `~/.config/psiphon-cli`

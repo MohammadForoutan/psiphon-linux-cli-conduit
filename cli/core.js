@@ -32,12 +32,13 @@ function getCorePath() {
 
 function runConnect(configDir, corePath, protocol, options = {}) {
   return new Promise((resolve) => {
+    const proxyHost = options.enableLan ? "0.0.0.0" : "127.0.0.1";
     const tunnelStartTime = Date.now();
     const statsState = {
       protocol,
       status: "connecting",
-      httpProxy: "127.0.0.1:8081",
-      socksProxy: "127.0.0.1:1081",
+      httpProxy: `${proxyHost}:8081`,
+      socksProxy: `${proxyHost}:1081`,
       tunnelCount: 0,
       clientRegion: "-",
       egressRegion: "-",
@@ -86,9 +87,9 @@ function runConnect(configDir, corePath, protocol, options = {}) {
           );
         }
         if (noticeType === "ListeningSocksProxyPort")
-          statsState.socksProxy = `127.0.0.1:${data.port}`;
+          statsState.socksProxy = `${proxyHost}:${data.port}`;
         if (noticeType === "ListeningHttpProxyPort")
-          statsState.httpProxy = `127.0.0.1:${data.port}`;
+          statsState.httpProxy = `${proxyHost}:${data.port}`;
         if (noticeType === "Tunnels") {
           statsState.tunnelCount = data.count || 0;
           statsState.status =
@@ -193,7 +194,14 @@ function runConnect(configDir, corePath, protocol, options = {}) {
     });
 
     console.log("\n  Connecting... (protocol: " + protocol + ")");
-    console.log("  HTTP proxy:  127.0.0.1:8081  SOCKS proxy: 127.0.0.1:1081");
+    console.log(
+      `  HTTP proxy:  ${proxyHost}:8081  SOCKS proxy: ${proxyHost}:1081`,
+    );
+    if (options.enableLan) {
+      console.log(
+        "  LAN mode: other devices can use this host's IP on ports 8081 (HTTP) and 1081 (SOCKS).",
+      );
+    }
     console.log(
       "  Run 'psiphon-cli stats' in another terminal. Ctrl+C to disconnect.\n",
     );
