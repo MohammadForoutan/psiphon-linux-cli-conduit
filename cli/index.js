@@ -4,6 +4,7 @@
 
 const { program } = require("commander");
 const config = require("./config");
+const { getVersion } = require("./version");
 const { runConnectCommand } = require("./commands/connect");
 const { runDisconnectCommand } = require("./commands/disconnect");
 const { runStatsCommand } = require("./commands/stats");
@@ -13,7 +14,7 @@ const { runRefreshServerListCommand } = require("./commands/refresh-server-list"
 program
   .name("psiphon-cli")
   .description("Psiphon tunnel CLI: connect, disconnect, stats")
-  .version("1.0.0")
+  .version(getVersion())
   .option("-c, --config-dir <dir>", "config directory", config.DEFAULT_CONFIG_DIR)
   .option(
     "--core <path>",

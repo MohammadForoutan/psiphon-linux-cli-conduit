@@ -14,7 +14,9 @@
     "logs": "node cli/index.js logs",
     "disconnect": "node cli/index.js disconnect",
     "stats": "node cli/index.js stats",
+    "prebuild": "node scripts/generate-version.js",
     "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json",
+    "prebuild:win": "node scripts/generate-version.js",
     "build:win": "pkg cli/index.js --targets node18-windows-x64 --output dist/psiphon-cli.exe --config package.json"
   },
   "keywords": [
@@ -41,6 +43,7 @@
   ],
   "pkg": {
     "assets": [
+      "cli/version.generated.json",
       "configs/**/*",
       "psiphon-tunnel-core-x86_64",
       "psiphon-tunnel-core-windows-amd64.exe",
