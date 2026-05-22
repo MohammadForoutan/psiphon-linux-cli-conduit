@@ -1,6 +1,6 @@
 {
   "name": "psiphon-linux-cli",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Unofficial Psiphon VPN client — CLI for Linux and Windows (connect, disconnect, stats)",
   "main": "cli/index.js",
   "bin": {
