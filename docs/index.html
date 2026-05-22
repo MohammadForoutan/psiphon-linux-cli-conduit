@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psiphon CLI — Documentation</title>
+  <meta name="description" content="Documentation for Psiphon CLI: connect, disconnect, stats, and proxy tunnel for Linux and Windows.">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4f;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --accent-dim: #1f3a5f;
+      --code-bg: #161b22;
+      --green: #3fb950;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    nav h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    nav h2:first-child { margin-top: 0; }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav li { margin: 0.2rem 0; }
+
+    nav a {
+      display: block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    nav a:hover {
+      color: var(--text);
+      background: var(--accent-dim);
+      text-decoration: none;
+    }
+
+    main {
+      max-width: 820px;
+      padding: 2.5rem 2rem 4rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 0.5rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    p, ul, ol { margin: 0 0 1rem; }
+
+    ul, ol { padding-left: 1.4rem; }
+
+    li { margin: 0.3rem 0; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: var(--code-bg);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      margin: 0 0 1rem;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.85rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 1.25rem;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+
+    .note {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      margin: 0 0 1rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .note.warn { border-left-color: #d29922; }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.5rem 0 2rem;
+    }
+
+    .hero-links a {
+      display: inline-block;
+      padding: 0.45rem 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .hero-links a:hover {
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      main { padding: 1.5rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <h2>Guide</h2>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#quick-start">Quick start</a></li>
+      </ul>
+      <h2>Commands</h2>
+      <ul>
+        <li><a href="#connect">connect</a></li>
+        <li><a href="#disconnect">disconnect</a></li>
+        <li><a href="#stats">stats</a></li>
+        <li><a href="#logs">logs</a></li>
+        <li><a href="#refresh-server-list">refresh-server-list</a></li>
+      </ul>
+      <h2>Features</h2>
+      <ul>
+        <li><a href="#protocol-modes">Protocol modes</a></li>
+        <li><a href="#regions">Regions</a></li>
+        <li><a href="#upstream-proxy">Upstream proxy</a></li>
+        <li><a href="#lan">LAN access</a></li>
+        <li><a href="#timeout">Connection timeout</a></li>
+        <li><a href="#config">Configuration</a></li>
+        <li><a href="#system-proxy">System-wide proxy</a></li>
+        <li><a href="#build">Standalone binary</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <h1>Psiphon CLI</h1>
+      <p class="subtitle">Unofficial Psiphon VPN client for Linux and Windows — connect, disconnect, and monitor tunnel stats from the terminal.</p>
+
+      <div class="hero-links">
+        <a href="https://github.com/MohammadForoutan/psiphon-linux-cli-conduit">GitHub repository</a>
+        <a href="#quick-start">Get started</a>
+        <a href="#connect">All options</a>
+      </div>
+
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>Psiphon CLI wraps <strong>psiphon-tunnel-core</strong> and gives you a simple command-line workflow:</p>
+        <ul>
+          <li>Choose a protocol mode and egress region</li>
+          <li>Start a local <strong>HTTP proxy</strong> on port <code>8081</code></li>
+          <li>Start a local <strong>SOCKS5 proxy</strong> on port <code>1081</code></li>
+          <li>View live stats and tunnel-core logs in other terminals</li>
+        </ul>
+        <p>By default, proxies listen on <code>127.0.0.1</code> (this machine only). Use <code>--enable-lan</code> to share them with other devices on your network.</p>
+      </section>
+
+      <section id="requirements">
+        <h2>Requirements</h2>
+        <ul>
+          <li><strong>Node.js</strong> 14+ (not required for the standalone binary)</li>
+          <li><strong>psiphon-tunnel-core</strong> binary for your platform from
+            <a href="https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries">psiphon-tunnel-core-binaries</a>
+          </li>
+        </ul>
+        <table>
+          <thead>
+            <tr><th>Platform</th><th>Binary name</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Linux x64</td><td><code>psiphon-tunnel-core-x86_64</code></td></tr>
+            <tr><td>Windows 64-bit</td><td><code>psiphon-tunnel-core-windows-amd64.exe</code></td></tr>
+            <tr><td>Windows 32-bit</td><td><code>psiphon-tunnel-core-i686.exe</code></td></tr>
+          </tbody>
+        </table>
+        <p>Place the binary in the project root, or pass <code>--core &lt;path&gt;</code> when connecting.</p>
+      </section>
+
+      <section id="install">
+        <h2>Install</h2>
+
+        <h3>From source</h3>
+        <pre><code>git clone https://github.com/MohammadForoutan/psiphon-linux-cli-conduit.git
+cd psiphon-linux-cli-conduit
+npm install</code></pre>
+
+        <h3>Global install</h3>
+        <pre><code>npm install -g .
+psiphon-cli --version</code></pre>
+        <p>Version output shows the git commit hash and date (e.g. <code>963c89a 2026-05-22</code>).</p>
+
+        <h3>Standalone binary (no Node.js)</h3>
+        <p>See <a href="#build">Build standalone binary</a>. Copy <code>dist/psiphon-cli</code> (or <code>psiphon-cli.exe</code>) anywhere on your PATH.</p>
+      </section>
+
+      <section id="quick-start">
+        <h2>Quick start</h2>
+        <pre><code>psiphon-cli connect</code></pre>
+        <ol>
+          <li><strong>Protocol</strong> — choose <code>1</code> auto, <code>2</code> conduit, or <code>3</code> direct</li>
+          <li><strong>Region</strong> — choose auto or pick a country code (e.g. US, DE, NL)</li>
+          <li>Tunnel starts. Proxies: HTTP <code>127.0.0.1:8081</code>, SOCKS <code>127.0.0.1:1081</code></li>
+          <li>Press <strong>Ctrl+C</strong> in the connect terminal to stop</li>
+        </ol>
+        <p>In another terminal:</p>
+        <pre><code>psiphon-cli stats    # live dashboard
+psiphon-cli logs     # tunnel-core JSON logs
+psiphon-cli disconnect   # stop from another terminal</code></pre>
+      </section>
+
+      <section id="connect">
+        <h2>connect</h2>
+        <p>Default command. Starts the tunnel and keeps running until you disconnect.</p>
+        <pre><code>psiphon-cli
+psiphon-cli connect
+psiphon-cli connect -r DE
+psiphon-cli connect -p socks5://127.0.0.1:10808
+psiphon-cli connect --enable-lan
+psiphon-cli connect --enable-timeout</code></pre>
+
+        <h3>Connect options</h3>
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-r, --region &lt;code&gt;</code></td><td>Egress region (ISO country code). Skips the region prompt when set.</td></tr>
+            <tr><td><code>-p, --upstream-proxy &lt;url&gt;</code></td><td>Route tunnel traffic through an upstream HTTP/HTTPS/SOCKS5 proxy.</td></tr>
+            <tr><td><code>--enable-timeout</code></td><td>Use psiphon-tunnel-core's establish-tunnel timeout. Off by default — keeps retrying until connected.</td></tr>
+            <tr><td><code>--enable-lan</code></td><td>Listen on all interfaces (<code>0.0.0.0</code>) so LAN devices can use the proxies. Off by default.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Global options</h3>
+        <p>Available on every command:</p>
+        <table>
+          <thead>
+            <tr><th>Option</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>-c, --config-dir &lt;dir&gt;</code></td><td>Config and data directory (see <a href="#config">Configuration</a>).</td></tr>
+            <tr><td><code>--core &lt;path&gt;</code></td><td>Path to psiphon-tunnel-core binary.</td></tr>
+            <tr><td><code>-V, --version</code></td><td>Show git commit hash and commit date.</td></tr>
+            <tr><td><code>-h, --help</code></td><td>Show command help.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="disconnect">
+        <h2>disconnect</h2>
+        <p>Stops the running tunnel-core process.</p>
+        <pre><code>psiphon-cli disconnect</code></pre>
+        <p>Uses the PID file when available; otherwise finds and stops tunnel-core by process name.</p>
+      </section>
+
+      <section id="stats">
+        <h2>stats</h2>
+        <p>Live dashboard refreshed every 2 seconds.</p>
+        <pre><code>psiphon-cli stats</code></pre>
+        <p>Shows:</p>
+        <ul>
+          <li>Connection status and protocol mode</li>
+          <li>Active tunnel protocol (e.g. FRONTED-MEEK-OSSH)</li>
+          <li>Uptime</li>
+          <li>HTTP and SOCKS proxy addresses</li>
+          <li>Client and egress regions</li>
+          <li>Download/upload speed and totals</li>
+        </ul>
+      </section>
+
+      <section id="logs">
+        <h2>logs</h2>
+        <p>Stream JSON notices from psiphon-tunnel-core (pretty-printed).</p>
+        <pre><code>psiphon-cli logs
+psiphon-cli logs -n 100</code></pre>
+        <p>Run in a separate terminal while connected. Logs reset each time you start a new connection.</p>
+      </section>
+
+      <section id="refresh-server-list">
+        <h2>refresh-server-list</h2>
+        <p>Download the latest official Psiphon server list into your config directory.</p>
+        <pre><code>psiphon-cli refresh-server-list</code></pre>
+        <p>Useful when you have good connectivity and want a fresh cached list for later use on restricted networks.</p>
+      </section>
+
+      <section id="protocol-modes">
+        <h2>Protocol modes</h2>
+        <p>Selected interactively at connect time, unless you automate via scripts:</p>
+        <table>
+          <thead>
+            <tr><th>Mode</th><th>Prompt</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>auto</strong></td><td><code>1</code></td><td>Let Psiphon choose protocols (default)</td></tr>
+            <tr><td><strong>conduit</strong></td><td><code>2</code></td><td>Route via volunteer Conduit stations</td></tr>
+            <tr><td><strong>direct</strong></td><td><code>3</code></td><td>Connect directly to Psiphon servers</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="regions">
+        <h2>Regions</h2>
+        <p>Set egress region with <code>-r &lt;code&gt;</code> or choose interactively. Supported codes:</p>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Country</th><th>Code</th><th>Country</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>US</td><td>United States</td><td>HK</td><td>Hong Kong</td></tr>
+            <tr><td>DE</td><td>Germany</td><td>KR</td><td>South Korea</td></tr>
+            <tr><td>NL</td><td>Netherlands</td><td>IE</td><td>Ireland</td></tr>
+            <tr><td>CA</td><td>Canada</td><td>PT</td><td>Portugal</td></tr>
+            <tr><td>GB</td><td>United Kingdom</td><td>NO</td><td>Norway</td></tr>
+            <tr><td>FR</td><td>France</td><td>FI</td><td>Finland</td></tr>
+            <tr><td>SG</td><td>Singapore</td><td>UA</td><td>Ukraine</td></tr>
+            <tr><td>JP</td><td>Japan</td><td>TR</td><td>Turkey</td></tr>
+            <tr><td>AU</td><td>Australia</td><td>MX</td><td>Mexico</td></tr>
+            <tr><td>IN</td><td>India</td><td></td><td></td></tr>
+            <tr><td>BR</td><td>Brazil</td><td></td><td></td></tr>
+            <tr><td>PL</td><td>Poland</td><td></td><td></td></tr>
+            <tr><td>SE</td><td>Sweden</td><td></td><td></td></tr>
+            <tr><td>CH</td><td>Switzerland</td><td></td><td></td></tr>
+            <tr><td>ES</td><td>Spain</td><td></td><td></td></tr>
+            <tr><td>IT</td><td>Italy</td><td></td><td></td></tr>
+            <tr><td>RO</td><td>Romania</td><td></td><td></td></tr>
+            <tr><td>CZ</td><td>Czech Republic</td><td></td><td></td></tr>
+            <tr><td>AT</td><td>Austria</td><td></td><td></td></tr>
+            <tr><td>BE</td><td>Belgium</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p>Leave region empty or choose <code>1</code> at the prompt to let Psiphon pick automatically.</p>
+      </section>
+
+      <section id="upstream-proxy">
+        <h2>Upstream proxy</h2>
+        <p>Chain tunnel traffic through another proxy (corporate proxy, local SOCKS, etc.).</p>
+        <pre><code>psiphon-cli connect -p http://proxy.example.com:8080
+psiphon-cli connect -p socks5://127.0.0.1:1080
+psiphon-cli connect -p http://user:pass@proxy:8080</code></pre>
+        <p>Environment variable (used when the flag is omitted):</p>
+        <pre><code>PSIPHON_UPSTREAM_PROXY=socks5://proxy:1080 psiphon-cli connect</code></pre>
+        <p>Supported schemes: <code>http://</code>, <code>https://</code>, <code>socks5://</code></p>
+      </section>
+
+      <section id="lan">
+        <h2>LAN access <span class="badge">--enable-lan</span></h2>
+        <p>By default, HTTP and SOCKS proxies bind to <code>127.0.0.1</code> only. To allow other devices on your local network:</p>
+        <pre><code>psiphon-cli connect --enable-lan</code></pre>
+        <p>This sets <code>ListenInterface: "any"</code> in psiphon config (binds to <code>0.0.0.0</code>).</p>
+        <p>Other devices should use your host's LAN IP:</p>
+        <ul>
+          <li>HTTP: <code>http://192.168.x.x:8081</code></li>
+          <li>SOCKS5: <code>socks5://192.168.x.x:1081</code></li>
+        </ul>
+        <div class="note warn">
+          <strong>Security:</strong> Anyone on your LAN can use the tunnel when LAN mode is enabled. There is no authentication on the local proxies. Open firewall ports <code>8081</code> and <code>1081</code> if needed.
+        </div>
+      </section>
+
+      <section id="timeout">
+        <h2>Connection timeout <span class="badge">--enable-timeout</span></h2>
+        <p>By default, the CLI sets <code>EstablishTunnelTimeoutSeconds: 0</code> so psiphon-tunnel-core keeps retrying until a tunnel is established.</p>
+        <p>Pass <code>--enable-timeout</code> to use the core's built-in establish-tunnel timeout instead (it may exit if no tunnel comes up in time).</p>
+        <pre><code>psiphon-cli connect --enable-timeout</code></pre>
+      </section>
+
+      <section id="config">
+        <h2>Configuration</h2>
+        <p>Config is stored in <code>psiphon.config</code> inside your config directory:</p>
+        <table>
+          <thead>
+            <tr><th>OS</th><th>Default path</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Linux</td><td><code>~/.config/psiphon-cli/</code></td></tr>
+            <tr><td>Windows</td><td><code>%LOCALAPPDATA%\psiphon-cli\</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>First run</h3>
+        <ul>
+          <li>Default config is copied from <code>configs/psiphon.config</code></li>
+          <li>Bundled server list snapshot is copied to <code>remote_server_list</code></li>
+          <li>On each <code>connect</code>, the CLI updates region, protocol limits, proxy settings, and a few runtime flags</li>
+        </ul>
+
+        <h3>Files in config directory</h3>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>psiphon.config</code></td><td>Main Psiphon core configuration</td></tr>
+            <tr><td><code>remote_server_list</code></td><td>Cached official server list</td></tr>
+            <tr><td><code>stats.json</code></td><td>Live stats (while connected)</td></tr>
+            <tr><td><code>psiphon.pid</code></td><td>Running tunnel-core PID</td></tr>
+            <tr><td><code>psiphon.log</code></td><td>Current session log</td></tr>
+          </tbody>
+        </table>
+
+        <p>Advanced users can edit <code>psiphon.config</code> directly. The CLI warns if the official server list URL and signature key are missing but still respects custom settings.</p>
+      </section>
+
+      <section id="system-proxy">
+        <h2>System-wide proxy</h2>
+        <p>Point applications or the whole system at the local proxies:</p>
+        <ul>
+          <li>HTTP proxy: <code>127.0.0.1:8081</code></li>
+          <li>SOCKS5 proxy: <code>127.0.0.1:1081</code></li>
+        </ul>
+        <p>For full-device routing, use a system proxy tool or TUN app such as
+          <a href="https://github.com/KaringX/karing">Karing</a> with SOCKS profile
+          <code>socks://127.0.0.1:1081</code>.
+        </p>
+      </section>
+
+      <section id="build">
+        <h2>Standalone binary</h2>
+        <p>Build a single executable with no Node.js dependency. Place the matching tunnel-core binary in the project root first.</p>
+        <table>
+          <thead>
+            <tr><th>Platform</th><th>Command</th><th>Output</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Linux</td><td><code>npm run build</code></td><td><code>dist/psiphon-cli</code></td></tr>
+            <tr><td>Windows</td><td><code>npm run build:win</code></td><td><code>dist/psiphon-cli.exe</code></td></tr>
+          </tbody>
+        </table>
+        <p>On first run, the bundled core binary is extracted to your config directory if needed.</p>
+        <pre><code>cp dist/psiphon-cli ~/.local/bin/
+psiphon-cli --version</code></pre>
+      </section>
+
+      <section id="github-pages">
+        <h2>GitHub Pages</h2>
+        <p>This documentation lives in <code>docs/index.html</code>. To publish on GitHub Pages:</p>
+        <ol>
+          <li>Push the repository to GitHub</li>
+          <li>Go to <strong>Settings → Pages</strong></li>
+          <li>Set <strong>Source</strong> to <strong>Deploy from a branch</strong></li>
+          <li>Choose branch <code>master</code> (or <code>main</code>) and folder <code>/docs</code></li>
+          <li>Save — the site will be available at <code>https://&lt;username&gt;.github.io/psiphon-linux-cli-conduit/</code></li>
+        </ol>
+      </section>
+
+      <footer>
+        <p>MIT License ·
+          <a href="https://github.com/MohammadForoutan/psiphon-linux-cli-conduit">MohammadForoutan/psiphon-linux-cli-conduit</a>
+        </p>
+        <p>Unofficial client — not affiliated with Psiphon Inc.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
