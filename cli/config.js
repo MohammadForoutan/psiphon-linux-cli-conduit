@@ -75,6 +75,12 @@ function buildConfig(configDir, options) {
   config.EgressRegion = options.region || "";
   config.EmitBytesTransferred = true;
 
+  if (options.enableTimeout) {
+    delete config.EstablishTunnelTimeoutSeconds;
+  } else {
+    config.EstablishTunnelTimeoutSeconds = 0;
+  }
+
   if (options.protocol === "conduit") {
     config.LimitTunnelProtocols = CONDUIT_PROTOCOLS;
   } else if (options.protocol === "direct") {

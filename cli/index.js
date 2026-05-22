@@ -30,6 +30,10 @@ program
     "upstream proxy URL (e.g. http://proxy:8080 or socks5://127.0.0.1:1080)",
     process.env.PSIPHON_UPSTREAM_PROXY || "",
   )
+  .option(
+    "--enable-timeout",
+    "use psiphon-tunnel-core establish tunnel timeout (disabled by default)",
+  )
   .action((options) => {
     const globalOpts = program.opts();
     runConnectCommand({ ...globalOpts, ...options });
