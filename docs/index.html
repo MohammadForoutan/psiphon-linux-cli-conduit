@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Psiphon CLI — Documentation</title>
-  <meta name="description" content="Documentation for Psiphon CLI: connect, disconnect, stats, and proxy tunnel for Linux and Windows.">
+  <meta name="description" content="Documentation for Psiphon CLI and native Linux GUI: connect, disconnect, stats, logs, and proxy tunnel.">
   <style>
     :root {
       --bg: #0f1419;
@@ -243,6 +243,11 @@
         <li><a href="#logs">logs</a></li>
         <li><a href="#refresh-server-list">refresh-server-list</a></li>
       </ul>
+      <h2>GUI</h2>
+      <ul>
+        <li><a href="#gui">Linux GUI</a></li>
+        <li><a href="#gui-build">Build &amp; run GUI</a></li>
+      </ul>
       <h2>Features</h2>
       <ul>
         <li><a href="#protocol-modes">Protocol modes</a></li>
@@ -252,18 +257,20 @@
         <li><a href="#timeout">Connection timeout</a></li>
         <li><a href="#config">Configuration</a></li>
         <li><a href="#system-proxy">System-wide proxy</a></li>
-        <li><a href="#build">Standalone binary</a></li>
+        <li><a href="#build">Build</a></li>
+        <li><a href="#server-list-bundling">Server list bundling</a></li>
       </ul>
     </nav>
 
     <main>
       <h1>Psiphon CLI</h1>
-      <p class="subtitle">Unofficial Psiphon VPN client for Linux and Windows — connect, disconnect, and monitor tunnel stats from the terminal.</p>
+      <p class="subtitle">Unofficial Psiphon VPN client — terminal CLI for Linux and Windows, plus a native Linux GUI (GTK4 / libadwaita).</p>
 
       <div class="hero-links">
         <a href="https://github.com/MohammadForoutan/psiphon-linux-cli-conduit">GitHub repository</a>
-        <a href="#quick-start">Get started</a>
-        <a href="#connect">All options</a>
+        <a href="#quick-start">CLI quick start</a>
+        <a href="#gui">Linux GUI</a>
+        <a href="#connect">All CLI options</a>
       </div>
 
       <section id="overview">
@@ -276,6 +283,7 @@
           <li>View live stats and tunnel-core logs in other terminals</li>
         </ul>
         <p>By default, proxies listen on <code>127.0.0.1</code> (this machine only). Use <code>--enable-lan</code> to share them with other devices on your network.</p>
+        <p>The <a href="#gui">native Linux GUI</a> provides the same tunnel with a desktop interface — connect button, live stats, logs window, and a settings dialog. It does not call the Node.js CLI; both share <code>~/.config/psiphon-cli</code>.</p>
       </section>
 
       <section id="requirements">
@@ -297,6 +305,14 @@
           </tbody>
         </table>
         <p>Place the binary in the project root, or pass <code>--core &lt;path&gt;</code> when connecting.</p>
+
+        <h3>GUI (Linux)</h3>
+        <ul>
+          <li>Vala, Meson, GCC</li>
+          <li>GTK4 and libadwaita development packages</li>
+          <li>json-glib, curl</li>
+        </ul>
+        <p>Fedora: <code>sudo dnf install vala gcc meson gtk4-devel libadwaita-devel json-glib-devel curl</code></p>
       </section>
 
       <section id="install">
@@ -310,7 +326,7 @@ npm install</code></pre>
         <h3>Global install</h3>
         <pre><code>npm install -g .
 psiphon-cli --version</code></pre>
-        <p>Version output shows the git commit hash and date (e.g. <code>963c89a 2026-05-22</code>).</p>
+        <p>Version output shows the package version, git commit hash, and date (e.g. <code>1.3.0 963c89a 2026-05-22</code>).</p>
 
         <h3>Standalone binary (no Node.js)</h3>
         <p>See <a href="#build">Build standalone binary</a>. Copy <code>dist/psiphon-cli</code> (or <code>psiphon-cli.exe</code>) anywhere on your PATH.</p>
@@ -363,7 +379,7 @@ psiphon-cli connect --enable-timeout</code></pre>
           <tbody>
             <tr><td><code>-c, --config-dir &lt;dir&gt;</code></td><td>Config and data directory (see <a href="#config">Configuration</a>).</td></tr>
             <tr><td><code>--core &lt;path&gt;</code></td><td>Path to psiphon-tunnel-core binary.</td></tr>
-            <tr><td><code>-V, --version</code></td><td>Show git commit hash and commit date.</td></tr>
+            <tr><td><code>-V, --version</code></td><td>Show package version, git commit hash, and commit date.</td></tr>
             <tr><td><code>-h, --help</code></td><td>Show command help.</td></tr>
           </tbody>
         </table>
@@ -524,6 +540,55 @@ psiphon-cli connect -p http://user:pass@proxy:8080</code></pre>
         <p>Advanced users can edit <code>psiphon.config</code> directly. The CLI warns if the official server list URL and signature key are missing but still respects custom settings.</p>
       </section>
 
+      <section id="gui">
+        <h2>Linux GUI</h2>
+        <p>Native desktop app in the <code>gui/</code> directory. Built with Vala, GTK4, and libadwaita. It spawns <code>psiphon-tunnel-core-x86_64</code> directly and uses the same config directory as the CLI.</p>
+
+        <h3>Features</h3>
+        <ul>
+          <li>Large connect / disconnect control with connection duration, public IP, and country flag</li>
+          <li>Live stats panel — protocol, regions, traffic, uptime</li>
+          <li>Logs window — monospace text in a resizable window</li>
+          <li>Settings (gear icon) — protocol, region with flag icons, upstream proxy, core path, config directory, LAN mode, establish-tunnel timeout, refresh server list</li>
+        </ul>
+
+        <p>Settings are saved with GSettings (<code>io.github.MohammadForoutan.PsiphonCliGui</code>). When run from the build tree, schemas in <code>build/data/</code> are loaded automatically.</p>
+      </section>
+
+      <section id="gui-build">
+        <h2>Build &amp; run GUI</h2>
+        <p>From the <code>gui/</code> directory:</p>
+        <pre><code>make setup    # first time only
+make build
+make run</code></pre>
+        <p>Run <code>make help</code> for all targets.</p>
+
+        <table>
+          <thead>
+            <tr><th>Make target</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>make setup</code></td><td>Configure Meson (<code>build/</code>)</td></tr>
+            <tr><td><code>make build</code></td><td>Compile (auto-setup if needed)</td></tr>
+            <tr><td><code>make run</code></td><td>Build and launch <code>./build/psiphon-cli-gui</code></td></tr>
+            <tr><td><code>make bundle</code></td><td>Copy local server list into <code>configs/</code></td></tr>
+            <tr><td><code>make install</code></td><td>Install to <code>PREFIX</code> (default <code>/usr/local</code>)</td></tr>
+            <tr><td><code>make clean</code></td><td>Remove compiled objects</td></tr>
+            <tr><td><code>make distclean</code></td><td>Remove <code>build/</code> entirely</td></tr>
+          </tbody>
+        </table>
+
+        <p>Equivalent Meson commands:</p>
+        <pre><code>cd gui
+meson setup build
+meson compile -C build
+./build/psiphon-cli-gui</code></pre>
+
+        <h3>Custom core path</h3>
+        <p>Set in the GUI settings dialog, or after install:</p>
+        <pre><code>gsettings set io.github.MohammadForoutan.PsiphonCliGui core-path '/path/to/psiphon-tunnel-core-x86_64'</code></pre>
+      </section>
+
       <section id="system-proxy">
         <h2>System-wide proxy</h2>
         <p>Point applications or the whole system at the local proxies:</p>
@@ -538,7 +603,9 @@ psiphon-cli connect -p http://user:pass@proxy:8080</code></pre>
       </section>
 
       <section id="build">
-        <h2>Standalone binary</h2>
+        <h2>Build</h2>
+
+        <h3>CLI standalone binary</h3>
         <p>Build a single executable with no Node.js dependency. Place the matching tunnel-core binary in the project root first.</p>
         <table>
           <thead>
@@ -552,6 +619,52 @@ psiphon-cli connect -p http://user:pass@proxy:8080</code></pre>
         <p>On first run, the bundled core binary is extracted to your config directory if needed.</p>
         <pre><code>cp dist/psiphon-cli ~/.local/bin/
 psiphon-cli --version</code></pre>
+
+        <h3>GUI (Linux)</h3>
+        <p>See <a href="#gui-build">Build &amp; run GUI</a>. Quick start: <code>cd gui && make build && make run</code></p>
+
+        <h3>Build CLI and GUI together</h3>
+        <pre><code>npm run build:all</code></pre>
+        <p>Runs server list bundling, builds the CLI binary, then compiles the GUI.</p>
+
+        <h3>npm scripts</h3>
+        <table>
+          <thead>
+            <tr><th>Script</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>npm run bundle-server-list</code></td><td>Copy local server list into <code>configs/server_list_compressed</code></td></tr>
+            <tr><td><code>npm run build</code></td><td>Bundle + build Linux CLI binary</td></tr>
+            <tr><td><code>npm run build:win</code></td><td>Bundle + build Windows CLI binary</td></tr>
+            <tr><td><code>npm run build:gui</code></td><td>Bundle + compile GUI</td></tr>
+            <tr><td><code>npm run build:all</code></td><td>Bundle + CLI + GUI</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="server-list-bundling">
+        <h2>Server list bundling</h2>
+        <p>Before packaging, both CLI and GUI builds copy the cached server list from your machine into <code>configs/server_list_compressed</code>. <strong>No download is performed at build time.</strong></p>
+
+        <p>Default source: <code>~/.config/psiphon-cli/remote_server_list</code> (or the filename from your <code>psiphon.config</code>).</p>
+
+        <pre><code>npm run bundle-server-list</code></pre>
+
+        <table>
+          <thead>
+            <tr><th>Variable</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>PSIPHON_SERVER_LIST</code></td><td>Explicit path to a server list file</td></tr>
+            <tr><td><code>PSIPHON_CONFIG_DIR</code></td><td>Config directory to read the cached list from</td></tr>
+          </tbody>
+        </table>
+
+        <p>The bundled file is included in the CLI pkg assets and installed with the GUI under <code>share/psiphon-cli-gui/configs/</code>. On first run, it is copied to <code>remote_server_list</code> in the user config directory.</p>
+
+        <div class="note">
+          At runtime you can still refresh the list over the network with <code>psiphon-cli refresh-server-list</code> or the GUI settings dialog when you have connectivity.
+        </div>
       </section>
 
       <section id="github-pages">

@@ -1,6 +1,12 @@
 # Dependencies
 node_modules/
 dist/
+dist/psiphon-cli-gui-staging/
+
+# Build outputs
+gui/build/
+gui/src/**/*.c
+gui/src/**/*.h
 cli/version.generated.json
 
 # Logs and runtime

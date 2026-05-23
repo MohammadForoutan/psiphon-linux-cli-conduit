@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.MohammadForoutan.PsiphonCliGui</id>
+  <name>Psiphon CLI GUI</name>
+  <summary>Native Linux GUI for Psiphon tunnel core</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>
+      Psiphon CLI GUI manages psiphon-tunnel-core directly and provides a
+      native GTK interface for connecting, disconnecting, and viewing live
+      tunnel stats.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.MohammadForoutan.PsiphonCliGui.desktop</launchable>
+</component>

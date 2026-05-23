@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.MohammadForoutan.PsiphonCliGui" path="/io/github/MohammadForoutan/PsiphonCliGui/">
+    <key name="protocol" type="i">
+      <default>0</default>
+      <summary>Protocol mode</summary>
+      <description>0 auto, 1 conduit, 2 direct.</description>
+    </key>
+    <key name="region" type="s">
+      <default>''</default>
+      <summary>Egress region code</summary>
+    </key>
+    <key name="upstream-proxy" type="s">
+      <default>''</default>
+      <summary>Upstream proxy URL</summary>
+    </key>
+    <key name="core-path" type="s">
+      <default>''</default>
+      <summary>Custom psiphon-tunnel-core path</summary>
+    </key>
+    <key name="config-dir" type="s">
+      <default>''</default>
+      <summary>Config directory</summary>
+    </key>
+    <key name="enable-lan" type="b">
+      <default>false</default>
+      <summary>Enable LAN mode</summary>
+    </key>
+    <key name="enable-timeout" type="b">
+      <default>false</default>
+      <summary>Enable establish tunnel timeout</summary>
+    </key>
+  </schema>
+</schemalist>

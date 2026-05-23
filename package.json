@@ -1,6 +1,6 @@
 {
   "name": "psiphon-linux-cli",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Unofficial Psiphon VPN client — CLI for Linux and Windows (connect, disconnect, stats)",
   "main": "cli/index.js",
   "bin": {
@@ -14,10 +14,14 @@
     "logs": "node cli/index.js logs",
     "disconnect": "node cli/index.js disconnect",
     "stats": "node cli/index.js stats",
-    "prebuild": "node scripts/generate-version.js",
+    "prebuild": "node scripts/generate-version.js && node scripts/bundle-server-list.js",
     "build": "pkg cli/index.js --targets node18-linux-x64 --output dist/psiphon-cli --config package.json",
-    "prebuild:win": "node scripts/generate-version.js",
-    "build:win": "pkg cli/index.js --targets node18-windows-x64 --output dist/psiphon-cli.exe --config package.json"
+    "prebuild:win": "node scripts/generate-version.js && node scripts/bundle-server-list.js",
+    "build:win": "pkg cli/index.js --targets node18-windows-x64 --output dist/psiphon-cli.exe --config package.json",
+    "bundle-server-list": "node scripts/bundle-server-list.js",
+    "build:gui": "bash scripts/package-gui.sh",
+    "package:gui": "bash scripts/package-gui.sh",
+    "build:all": "npm run build && npm run build:gui"
   },
   "keywords": [
     "psiphon",

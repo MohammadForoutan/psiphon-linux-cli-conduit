@@ -1,30 +1,51 @@
 # Psiphon CLI
 
-Unofficial Psiphon VPN client — CLI for Linux and Windows to connect, disconnect, and view tunnel stats.
+Unofficial Psiphon VPN client for **Linux and Windows** (CLI) and **Linux** (native GUI). Connect, disconnect, view stats, and inspect tunnel logs.
+
+| Component | Platform | Description |
+| --------- | -------- | ----------- |
+| **CLI** | Linux, Windows | Terminal client — interactive or scripted |
+| **GUI** | Linux | Native GTK4 / libadwaita desktop app ([`gui/`](gui/)) |
+
+Both the CLI and GUI talk to **psiphon-tunnel-core** directly and share the same config directory (`~/.config/psiphon-cli` on Linux).
 
 ## Requirements
 
-- **Node.js** 18+
+### CLI
+
+- **Node.js** 18+ (not required for the standalone binary)
 - **Psiphon tunnel core** binary for your platform from [psiphon-tunnel-core-binaries](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries). Place it in the project root (or use `--core <path>`):
-  - **Linux:** `psiphon-tunnel-core-x86_64` (in `linux/`)
-  - **Windows:** `psiphon-tunnel-core-windows-amd64.exe` (64-bit) or `psiphon-tunnel-core-i686.exe` (32-bit) in `windows/`
+  - **Linux:** `psiphon-tunnel-core-x86_64`
+  - **Windows:** `psiphon-tunnel-core-windows-amd64.exe` (64-bit) or `psiphon-tunnel-core-i686.exe` (32-bit)
+
+### GUI (Linux only)
+
+- Vala, Meson, GTK4, libadwaita, json-glib, curl
+
+Fedora:
+
+```bash
+sudo dnf install vala gcc meson gtk4-devel libadwaita-devel json-glib-devel curl
+```
+
+See [`gui/README.md`](gui/README.md) for build and run details.
 
 ## Install
 
 ```bash
-git clone https://github.com/your-username/psiphon-linux-cli-conduit.git
+git clone https://github.com/MohammadForoutan/psiphon-linux-cli-conduit.git
 cd psiphon-linux-cli-conduit
 npm install
 ```
 
-Or install globally:
+Or install the CLI globally:
 
 ```bash
 npm install -g .
 # then run: psiphon-cli
 ```
 
-## Usage
+## Usage (CLI)
 
 ### Connect (default)
 
@@ -61,14 +82,37 @@ node cli/index.js disconnect
 psiphon-cli disconnect
 ```
 
-## Commands
+## GUI (Linux)
 
-| Command       | Description                                      |
-| ------------- | ------------------------------------------------ |
-| `connect`     | Connect (choose protocol & region, run tunnel)  |
-| `disconnect`  | Stop the tunnel                                  |
-| `stats`       | Show live stats (refreshes every 2 seconds)      |
-| `logs`        | Show live logs from tunnel core (pretty-printed JSON) |
+Native desktop app in [`gui/`](gui/) — does **not** call the Node.js CLI. It spawns `psiphon-tunnel-core-x86_64` and uses the same config directory as the CLI.
+
+**Features:**
+
+- Large connect / disconnect control with connection status, public IP, and country flag
+- Live stats panel (protocol, regions, traffic, uptime)
+- Logs window (monospace, scrollable)
+- Settings dialog (gear icon): protocol, region with flag icons, upstream proxy, core path, config directory, LAN mode, establish-tunnel timeout, refresh server list
+
+**Quick start:**
+
+```bash
+cd gui
+make setup    # first time only
+make build
+make run
+```
+
+Run `make help` in `gui/` for all targets (`install`, `clean`, `bundle`, etc.).
+
+## Commands (CLI)
+
+| Command                 | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| `connect`               | Connect (choose protocol & region, run tunnel)           |
+| `disconnect`            | Stop the tunnel                                          |
+| `stats`                 | Show live stats (refreshes every 2 seconds)              |
+| `logs`                  | Show live logs from tunnel core (pretty-printed JSON)     |
+| `refresh-server-list`   | Download latest server list into config directory        |
 
 ## Options (global)
 
@@ -78,6 +122,7 @@ psiphon-cli disconnect
 | `--core <path>`     | Path to the Psiphon tunnel core binary for your platform |
 
 **Connect command** also supports:
+
 | Option                    | Description |
 | ------------------------- | ----------- |
 | `-r, --region <code>`      | Egress region (ISO country code) |
@@ -86,6 +131,7 @@ psiphon-cli disconnect
 | `--enable-lan`             | Listen on all interfaces so HTTP/SOCKS proxies are reachable on the LAN (localhost only by default) |
 
 **Default config directory:**
+
 - Linux: `~/.config/psiphon-cli`
 - Windows: `%LOCALAPPDATA%\psiphon-cli` (e.g. `C:\Users\<you>\AppData\Local\psiphon-cli`)
 
@@ -111,7 +157,7 @@ Run this in another terminal after starting `psiphon-cli connect`. Logs are for 
 
 Configuration for the Psiphon core is driven by a JSON file named `psiphon.config`.
 
-- This CLI ships with a default config at `configs/psiphon.config` that is based on the public free-network example from ProxySmart’s Psiphon Linux guide (it sets `RemoteServerListUrl`, `RemoteServerListSignaturePublicKey`, and related fields to use Psiphon’s official server list).[4](https://proxysmart.org/psiphon-setting-up-linux-client-with-free-servers/)
+- This project ships with a default config at `configs/psiphon.config` that is based on the public free-network example from ProxySmart’s Psiphon Linux guide (it sets `RemoteServerListUrl`, `RemoteServerListSignaturePublicKey`, and related fields to use Psiphon’s official server list).[4](https://proxysmart.org/psiphon-setting-up-linux-client-with-free-servers/)
 - On first run, that file is copied into your user config directory (see **Default config directory** above). A bundled snapshot of the official server list (`configs/server_list_compressed`) is also copied into the config directory as `remote_server_list`, matching `RemoteServerListDownloadFilename`.
 - On each `connect`, the CLI updates only a few fields (region, protocol limits, traffic stats emission) and leaves the server list settings intact so that `psiphon-tunnel-core` can download and verify the official list of servers. When the remote URL is blocked, the core can still fall back to the cached `remote_server_list` file.
 
@@ -150,16 +196,92 @@ PSIPHON_UPSTREAM_PROXY=socks5://proxy:1080 psiphon-cli connect
 | **conduit** | Via volunteer Conduit stations       |
 | **direct**  | Direct to Psiphon servers            |
 
-## Build standalone binary
+## Build
+
+### Server list bundling
+
+Before packaging, both CLI and GUI builds copy the cached server list from your machine into `configs/server_list_compressed` (from `~/.config/psiphon-cli/remote_server_list` by default). **No download is performed at build time.**
+
+```bash
+npm run bundle-server-list
+```
+
+Override with environment variables:
+
+| Variable | Description |
+| -------- | ----------- |
+| `PSIPHON_SERVER_LIST` | Explicit path to a server list file |
+| `PSIPHON_CONFIG_DIR` | Config directory to read `remote_server_list` from |
+
+### CLI standalone binary
 
 Build produces a standalone executable (no Node.js required). Place the matching core binary in the project root before building.
 
-| Platform | Command           | Output               | Core binary in project root |
-| -------- | ----------------- | -------------------- | ---------------------------- |
-| Linux    | `npm run build`   | `dist/psiphon-cli`   | `psiphon-tunnel-core-x86_64` |
-| Windows  | `npm run build:win` | `dist/psiphon-cli.exe` | `psiphon-tunnel-core-windows-amd64.exe` or `psiphon-tunnel-core-i686.exe` |
+| Platform | Command             | Output                 |
+| -------- | ------------------- | ---------------------- |
+| Linux    | `npm run build`     | `dist/psiphon-cli`     |
+| Windows  | `npm run build:win` | `dist/psiphon-cli.exe` |
 
 On first run, the bundled core is extracted to the default config directory for your OS.
+
+### GUI (Linux)
+
+```bash
+cd gui
+make setup    # first time only
+make build
+make install  # optional, PREFIX=/usr/local by default
+```
+
+| Make target | Action |
+| ----------- | ------ |
+| `make help` | List all targets |
+| `make build` | Configure (if needed) and compile |
+| `make run` | Build and launch the app |
+| `make bundle` | Copy local server list only |
+| `make install` | Install to system prefix (use `DESTDIR` for staging) |
+| `make package` | Create `../dist/psiphon-cli-gui-<version>-linux-x64.tar.gz` |
+| `make clean` | Remove compiled objects |
+| `make distclean` | Remove `build/` |
+
+When run from the build tree, GSettings schemas in `build/data/` are loaded automatically.
+
+**Release tarball:**
+
+```bash
+npm run build:gui
+# → dist/psiphon-cli-gui-<version>-linux-x64.tar.gz
+```
+
+Install on another machine:
+
+```bash
+sudo tar xzf psiphon-cli-gui-*.tar.gz -C /
+```
+
+Requires GTK4, libadwaita, and `psiphon-tunnel-core-x86_64` on the target system.
+
+### npm scripts
+
+| Script | Output |
+| ------ | ------ |
+| `npm run bundle-server-list` | Copy local server list into `configs/server_list_compressed` |
+| `npm run build` | `dist/psiphon-cli` |
+| `npm run build:win` | `dist/psiphon-cli.exe` |
+| `npm run build:gui` | `dist/psiphon-cli-gui-<version>-linux-x64.tar.gz` |
+| `npm run package:gui` | Same as `build:gui` |
+| `npm run build:all` | CLI binary + GUI tarball |
+
+```bash
+npm run build:all
+```
+
+## Documentation
+
+- **GitHub Pages:** [`docs/index.html`](docs/index.html) — full CLI and GUI reference
+- **GUI details:** [`gui/README.md`](gui/README.md)
+
+To publish docs on GitHub Pages: **Settings → Pages → Deploy from branch → `/docs`**.
 
 ## Route whole system through tunnel
 
