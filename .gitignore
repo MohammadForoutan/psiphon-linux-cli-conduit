@@ -27,3 +27,6 @@ psiphon-tunnel-core*
 
 # Cursor Plans
 .cursor/plans
+
+# Other
+/src
