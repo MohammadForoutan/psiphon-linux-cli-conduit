@@ -2,92 +2,59 @@
 
 "use strict";
 
-const { program } = require("commander");
-const config = require("./config");
-const { getVersion } = require("./version");
+const { parseCliArgs, printHelp, printVersion } = require("./argv");
 const { runConnectCommand } = require("./commands/connect");
 const { runDisconnectCommand } = require("./commands/disconnect");
 const { runStatsCommand } = require("./commands/stats");
 const { runLogsCommand } = require("./commands/logs");
 const { runRefreshServerListCommand } = require("./commands/refresh-server-list");
 
-program
-  .name("psiphon-cli")
-  .description("Psiphon tunnel CLI: connect, disconnect, stats")
-  .version(getVersion())
-  .option("-c, --config-dir <dir>", "config directory", config.DEFAULT_CONFIG_DIR)
-  .option(
-    "--core <path>",
-    "path to psiphon-tunnel-core binary",
-    require("./core").getCorePath(),
-  );
+let parsed;
 
-program
-  .command("connect", { isDefault: true })
-  .description("Connect (choose protocol & region, then run tunnel)")
-  .option("-r, --region <code>", "egress region (ISO country code)", "")
-  .option(
-    "-p, --upstream-proxy <url>",
-    "upstream proxy URL (e.g. http://proxy:8080 or socks5://127.0.0.1:1080)",
-    process.env.PSIPHON_UPSTREAM_PROXY || "",
-  )
-  .option(
-    "--enable-timeout",
-    "use psiphon-tunnel-core establish tunnel timeout (disabled by default)",
-  )
-  .option(
-    "--enable-lan",
-    "listen on all interfaces so HTTP/SOCKS proxies are reachable on the LAN (localhost only by default)",
-  )
-  .action((options) => {
-    const globalOpts = program.opts();
-    runConnectCommand({ ...globalOpts, ...options });
-  });
+try {
+  parsed = parseCliArgs(process.argv);
+} catch (err) {
+  console.error(`Error: ${err.message}`);
+  console.error("Run 'psiphon-cli --help' for usage.");
+  process.exit(1);
+}
 
-program
-  .command("disconnect")
-  .description("Disconnect the tunnel")
-  .action((options) => {
-    const globalOpts = program.opts();
-    runDisconnectCommand({ ...globalOpts, ...options });
-  });
+const { command, options } = parsed;
 
-program
-  .command("stats")
-  .description("Show tunnel stats (updates every 2s)")
-  .action((options) => {
-    const globalOpts = program.opts();
-    runStatsCommand({ ...globalOpts, ...options });
-  });
+if (options.help) {
+  printHelp();
+  process.exit(0);
+}
 
-program
-  .command("logs")
-  .description("Show live logs from psiphon-tunnel-core (pretty-printed JSON)")
-  .option(
-    "-n, --lines <number>",
-    "number of recent log lines to show initially",
-    "50",
-  )
-  .action((options) => {
-    const globalOpts = program.opts();
-    const merged = { ...globalOpts, ...options };
-    if (typeof merged.lines === "string") {
-      const parsed = parseInt(merged.lines, 10);
-      if (!Number.isNaN(parsed)) {
-        merged.lines = parsed;
+if (options.version) {
+  printVersion();
+  process.exit(0);
+}
+
+switch (command) {
+  case "connect":
+    runConnectCommand(options);
+    break;
+  case "disconnect":
+    runDisconnectCommand(options);
+    break;
+  case "stats":
+    runStatsCommand(options);
+    break;
+  case "logs":
+    if (typeof options.lines === "string") {
+      const parsedLines = parseInt(options.lines, 10);
+      if (!Number.isNaN(parsedLines)) {
+        options.lines = parsedLines;
       }
     }
-    runLogsCommand(merged);
-  });
-
-program
-  .command("refresh-server-list")
-  .description(
-    "Download or update the official Psiphon server list into the config directory",
-  )
-  .action((options) => {
-    const globalOpts = program.opts();
-    runRefreshServerListCommand({ ...globalOpts, ...options });
-  });
-
-program.parse();
+    runLogsCommand(options);
+    break;
+  case "refresh-server-list":
+    runRefreshServerListCommand(options);
+    break;
+  default:
+    console.error(`Error: unknown command '${command}'`);
+    console.error("Run 'psiphon-cli --help' for usage.");
+    process.exit(1);
+}

@@ -35,7 +35,7 @@
     "url": "https://github.com/MohammadForoutan/psiphon-linux-cli-conduit.git"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
     "cli/",
@@ -49,9 +49,6 @@
       "psiphon-tunnel-core-windows-amd64.exe",
       "psiphon-tunnel-core-i686.exe"
     ]
-  },
-  "dependencies": {
-    "commander": "^12.1.0"
   },
   "devDependencies": {
     "pkg": "^5.8.1"

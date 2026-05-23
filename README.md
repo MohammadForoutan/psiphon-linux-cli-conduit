@@ -4,7 +4,7 @@ Unofficial Psiphon VPN client — CLI for Linux and Windows to connect, disconne
 
 ## Requirements
 
-- **Node.js** 14+
+- **Node.js** 18+
 - **Psiphon tunnel core** binary for your platform from [psiphon-tunnel-core-binaries](https://github.com/Psiphon-Labs/psiphon-tunnel-core-binaries). Place it in the project root (or use `--core <path>`):
   - **Linux:** `psiphon-tunnel-core-x86_64` (in `linux/`)
   - **Windows:** `psiphon-tunnel-core-windows-amd64.exe` (64-bit) or `psiphon-tunnel-core-i686.exe` (32-bit) in `windows/`
