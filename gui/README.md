@@ -58,11 +58,14 @@ npm run build:gui
 # or: make package
 ```
 
-Creates `dist/psiphon-cli-gui-<version>-linux-x64.tar.gz`. Install with:
+Creates `dist/psiphon-cli-gui-<version>-linux-x64.tar.gz` and optionally an `.AppImage`. Run without installing:
 
 ```bash
-sudo tar xzf psiphon-cli-gui-*.tar.gz -C /
+tar xzf psiphon-cli-gui-*.tar.gz
+./psiphon-cli-gui-portable/run
 ```
+
+Do **not** run `./usr/local/bin/psiphon-cli-gui` directly after extract — use the `run` launcher so GSettings and library paths are set correctly.
 
 The build output includes compiled GSettings schemas in `build/data/`. The app
 loads them automatically when run from the build tree; after `meson install`, the

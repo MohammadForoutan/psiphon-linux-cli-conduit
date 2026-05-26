@@ -2,6 +2,8 @@
 node_modules/
 dist/
 dist/psiphon-cli-gui-staging/
+dist/psiphon-cli-gui-portable/
+dist/.tools/
 
 # Build outputs
 gui/build/
@@ -30,6 +32,7 @@ Thumbs.db
 
 # Psiphon tunnel core binary (download separately per platform)
 psiphon-tunnel-core*
+direct-psiphon/psiphon-tunnel-core*
 
 # Cursor Plans
 .cursor/plans

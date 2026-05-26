@@ -8,7 +8,7 @@ namespace PsiphonCliGui {
 
     public class VersionInfo {
         public static VersionData load () {
-            foreach (string path in version_paths ()) {
+            foreach (string path in RuntimePaths.version_file_candidates ()) {
                 if (!FileUtils.test (path, FileTest.EXISTS)) {
                     continue;
                 }
@@ -56,31 +56,6 @@ namespace PsiphonCliGui {
                 return root.get_string_member (member);
             }
             return fallback;
-        }
-
-        private static string[] version_paths () {
-            string exe_path = "";
-            try {
-                exe_path = FileUtils.read_link ("/proc/self/exe");
-            } catch (FileError e) {
-                // ignore
-            }
-
-            string[] paths = {
-                Path.build_filename (Environment.get_current_dir (), "version.json"),
-                Path.build_filename (Environment.get_current_dir (), "build", "version.json"),
-                Path.build_filename (Environment.get_current_dir (), "..", "cli", "version.generated.json"),
-                Path.build_filename (Environment.get_current_dir (), "..", "..", "cli", "version.generated.json"),
-                "/usr/local/share/psiphon-cli-gui/version.json",
-                "/usr/share/psiphon-cli-gui/version.json"
-            };
-
-            if (exe_path.length > 0) {
-                string exe_dir = Path.get_dirname (exe_path);
-                paths += Path.build_filename (exe_dir, "version.json");
-            }
-
-            return paths;
         }
     }
 }

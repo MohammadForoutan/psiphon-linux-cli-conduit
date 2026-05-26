@@ -4,16 +4,8 @@ namespace PsiphonCliGui.GSettingsSetup {
             return;
         }
 
-        string exe_path;
-        try {
-            exe_path = FileUtils.read_link ("/proc/self/exe");
-        } catch (FileError e) {
-            return;
-        }
-
-        var schema_dir = Path.build_filename (Path.get_dirname (exe_path), "data");
-        var compiled = Path.build_filename (schema_dir, "gschemas.compiled");
-        if (FileUtils.test (compiled, FileTest.EXISTS)) {
+        string? schema_dir = RuntimePaths.find_schema_dir ();
+        if (schema_dir != null) {
             Environment.set_variable ("GSETTINGS_SCHEMA_DIR", schema_dir, true);
         }
     }

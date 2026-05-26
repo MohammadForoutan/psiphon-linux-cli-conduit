@@ -57,6 +57,7 @@ sources = files(
   'src/utils/constants.vala',
   'src/utils/format.vala',
   'src/utils/gsettings-setup.vala',
+  'src/utils/runtime-paths.vala',
   'src/utils/region-flags.vala',
   'src/utils/version-info.vala',
   'src/widgets/about-dialog.vala',

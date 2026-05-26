@@ -251,15 +251,24 @@ When run from the build tree, GSettings schemas in `build/data/` are loaded auto
 ```bash
 npm run build:gui
 # → dist/psiphon-cli-gui-<version>-linux-x64.tar.gz
+# → dist/psiphon-cli-gui-<version>-linux-x64.AppImage (when linuxdeploy is available)
 ```
 
-Install on another machine:
+Extract and run (no system install needed):
+
+```bash
+tar xzf psiphon-cli-gui-*.tar.gz
+./psiphon-cli-gui-portable/run
+```
+
+The bundle includes configs, GSettings schemas, and (when built with linuxdeploy) GTK/libadwaita libraries. Place `psiphon-tunnel-core-x86_64` in the repo root before packaging to include it in the bundle.
+
+System install (optional):
 
 ```bash
 sudo tar xzf psiphon-cli-gui-*.tar.gz -C /
+/usr/local/bin/psiphon-cli-gui
 ```
-
-Requires GTK4, libadwaita, and `psiphon-tunnel-core-x86_64` on the target system.
 
 ### npm scripts
 

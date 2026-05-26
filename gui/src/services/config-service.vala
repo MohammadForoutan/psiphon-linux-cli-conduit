@@ -151,15 +151,7 @@ namespace PsiphonCliGui {
         }
 
         private string find_default_asset (string name) throws Error {
-            string[] dirs = {
-                Path.build_filename (Environment.get_current_dir (), "..", "configs"),
-                Path.build_filename (Environment.get_current_dir (), "configs"),
-                Path.build_filename (Environment.get_current_dir (), "..", "..", "configs"),
-                "/usr/local/share/psiphon-cli-gui/configs",
-                "/usr/share/psiphon-cli-gui/configs"
-            };
-
-            foreach (string dir in dirs) {
+            foreach (string dir in RuntimePaths.config_dir_candidates ()) {
                 string candidate = Path.build_filename (dir, name);
                 if (FileUtils.test (candidate, FileTest.EXISTS)) {
                     return candidate;
@@ -167,7 +159,7 @@ namespace PsiphonCliGui {
             }
 
             throw new ConfigError.DEFAULT_CONFIG_MISSING (
-                "Default asset '%s' was not found. Run from gui/ during development or install the GUI assets.",
+                "Default asset '%s' was not found. Run from the portable bundle or install the GUI assets.",
                 name
             );
         }
