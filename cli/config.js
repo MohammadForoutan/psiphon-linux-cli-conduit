@@ -87,6 +87,12 @@ function buildConfig(configDir, options) {
     delete config.ListenInterface;
   }
 
+  if (options.enableBeastMode !== false) {
+    config.AggressiveEstablishment = true;
+  } else {
+    delete config.AggressiveEstablishment;
+  }
+
   if (options.protocol === "conduit") {
     config.LimitTunnelProtocols = CONDUIT_PROTOCOLS;
   } else if (options.protocol === "direct") {

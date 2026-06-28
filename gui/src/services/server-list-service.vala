@@ -35,28 +35,53 @@ namespace PsiphonCliGui {
             }
 
             string dest_path = Path.build_filename (config.config_dir, filename);
-            string command = "curl -s --fail --max-time 60 -o '%s' '%s'".printf (
-                dest_path.replace ("'", "'\\''"),
-                url.replace ("'", "'\\''")
-            );
+            string[] argv = {
+                "curl",
+                "-s",
+                "--fail",
+                "--max-time",
+                "60",
+                "-o",
+                dest_path,
+                url
+            };
 
-            string? stdout;
-            string? stderr;
-            int exit_status;
-            Process.spawn_command_line_sync (
-                command,
-                out stdout,
-                out stderr,
-                out exit_status
+            var launcher = new SubprocessLauncher (
+                SubprocessFlags.STDERR_PIPE | SubprocessFlags.STDOUT_SILENCE
             );
+            Subprocess subprocess = launcher.spawnv (argv);
 
-            if (exit_status != 0) {
+            try {
+                yield subprocess.wait_check_async (null);
+            } catch (Error err) {
+                string detail = yield read_subprocess_stderr (subprocess);
+                if (detail.length > 0) {
+                    throw new ServerListError.DOWNLOAD_FAILED (detail);
+                }
                 throw new ServerListError.DOWNLOAD_FAILED (
-                    stderr != null && stderr.length > 0 ? stderr.strip () : "Failed to download server list"
+                    "Failed to download server list: %s".printf (err.message)
                 );
             }
 
             return dest_path;
+        }
+
+        private async string read_subprocess_stderr (Subprocess subprocess) {
+            try {
+                var stream = new DataInputStream (subprocess.get_stderr_pipe ());
+                size_t length = 0;
+                string? line = yield stream.read_line_async (
+                    Priority.DEFAULT,
+                    null,
+                    out length
+                );
+                if (line != null) {
+                    return line.strip ();
+                }
+            } catch (Error err) {
+                warning ("Could not read curl stderr: %s", err.message);
+            }
+            return "";
         }
     }
 }

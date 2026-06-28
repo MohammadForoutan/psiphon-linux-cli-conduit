@@ -19,6 +19,8 @@ namespace PsiphonCliGui {
         public int64 connected_at_ms { get; set; default = 0; }
         public int64 connect_duration_ms { get; set; default = 0; }
         public string public_ip { get; set; default = "-"; }
+        public string routing_status { get; set; default = "-"; }
+        public string beast_mode { get; set; default = "-"; }
 
         public TunnelStats copy () {
             var stats = new TunnelStats ();
@@ -41,6 +43,8 @@ namespace PsiphonCliGui {
             stats.connected_at_ms = connected_at_ms;
             stats.connect_duration_ms = connect_duration_ms;
             stats.public_ip = public_ip;
+            stats.routing_status = routing_status;
+            stats.beast_mode = beast_mode;
             return stats;
         }
     }

@@ -10,6 +10,9 @@ namespace PsiphonCliGui {
         private ServerListService server_list_service;
         private SettingsDialog? settings_dialog = null;
         private LogsWindow? logs_window = null;
+        private LogsWindow? sing_box_logs_window = null;
+        private Gtk.Button psiphon_logs_button;
+        private Gtk.Button sing_box_logs_button;
         private TunnelOptions current_options;
 
         public MainWindow (Adw.Application app) {
@@ -23,8 +26,28 @@ namespace PsiphonCliGui {
             server_list_service = new ServerListService (config);
             var ip_service = new IpService ();
             tunnel_manager = new TunnelManager (config, stats_service, log_service, ip_service);
+
             current_options = settings_service.load_options ();
             config.apply_config_dir (current_options.config_dir);
+
+            try {
+                config.ensure_seed_files ();
+            } catch (Error err) {
+                warning ("Could not initialize config directory: %s", err.message);
+            }
+
+            string resolved_core = config.resolve_core_path (current_options.core_path);
+            if (resolved_core.length > 0 && resolved_core != current_options.core_path.strip ()) {
+                current_options.core_path = resolved_core;
+                settings_service.save_options (current_options);
+            }
+
+            var sing_box_manager = new SingBoxManager (config);
+            string resolved_sing_box = sing_box_manager.resolve_path (current_options.sing_box_path);
+            if (resolved_sing_box.length > 0 && resolved_sing_box != current_options.sing_box_path.strip ()) {
+                current_options.sing_box_path = resolved_sing_box;
+                settings_service.save_options (current_options);
+            }
 
             toast_overlay = new Adw.ToastOverlay ();
             set_content (toast_overlay);
@@ -33,6 +56,16 @@ namespace PsiphonCliGui {
             toast_overlay.set_child (root);
 
             var header = new Adw.HeaderBar ();
+
+            psiphon_logs_button = new Gtk.Button.from_icon_name ("text-x-generic-symbolic");
+            psiphon_logs_button.tooltip_text = "Psiphon core logs";
+            psiphon_logs_button.clicked.connect (() => open_psiphon_logs ());
+            header.pack_end (psiphon_logs_button);
+
+            sing_box_logs_button = new Gtk.Button.from_icon_name ("network-wired-symbolic");
+            sing_box_logs_button.tooltip_text = "sing-box logs";
+            sing_box_logs_button.clicked.connect (() => open_sing_box_logs ());
+            header.pack_end (sing_box_logs_button);
 
             var about_button = new Gtk.Button.from_icon_name ("help-about-symbolic");
             about_button.tooltip_text = "About";
@@ -96,7 +129,6 @@ namespace PsiphonCliGui {
             connection_panel.disconnect_requested.connect (() => {
                 tunnel_manager.stop_tunnel ();
             });
-            connection_panel.logs_requested.connect (open_logs);
 
             tunnel_manager.running_changed.connect ((running) => {
                 connection_panel.set_running (running);
@@ -114,11 +146,37 @@ namespace PsiphonCliGui {
                 toast_overlay.add_toast (new Adw.Toast (message));
             });
 
+            tunnel_manager.sing_box_error_changed.connect ((message) => {
+                update_sing_box_button (message);
+            });
+
             log_service.line_appended.connect ((line) => {
                 if (logs_window != null) {
                     logs_window.append_line (line);
                 }
             });
+
+            tunnel_manager.log_line.connect ((line) => {
+                if (line.has_prefix ("[sing-box]") && sing_box_logs_window != null) {
+                    sing_box_logs_window.append_line (line.substring (11).strip ());
+                }
+            });
+
+            update_sing_box_button (tunnel_manager.sing_box_last_error ());
+        }
+
+        private void update_sing_box_button (string message) {
+            string trimmed = message.strip ();
+            if (trimmed.length > 0) {
+                sing_box_logs_button.add_css_class ("destructive-action");
+                sing_box_logs_button.tooltip_text = "sing-box error: %s".printf (trimmed);
+                sing_box_logs_button.set_icon_name ("dialog-warning-symbolic");
+                return;
+            }
+
+            sing_box_logs_button.remove_css_class ("destructive-action");
+            sing_box_logs_button.set_icon_name ("network-wired-symbolic");
+            sing_box_logs_button.tooltip_text = "sing-box logs";
         }
 
         private void open_about () {
@@ -137,13 +195,32 @@ namespace PsiphonCliGui {
             settings_dialog.open (this);
         }
 
-        private void open_logs () {
+        private void open_psiphon_logs () {
             if (logs_window == null) {
-                logs_window = new LogsWindow (this);
+                logs_window = new LogsWindow (this, "Psiphon core logs");
             }
 
             logs_window.set_text (log_service.get_text ());
             logs_window.present ();
+        }
+
+        private void open_sing_box_logs () {
+            if (sing_box_logs_window == null) {
+                sing_box_logs_window = new LogsWindow (this, "sing-box logs");
+            }
+
+            string text = tunnel_manager.sing_box_log_text ().strip ();
+            if (text.length == 0) {
+                string last_error = tunnel_manager.sing_box_last_error ().strip ();
+                if (last_error.length > 0) {
+                    text = last_error;
+                } else {
+                    text = "No sing-box output yet. Enable TUN routing and connect to populate this log.";
+                }
+            }
+
+            sing_box_logs_window.set_text (text);
+            sing_box_logs_window.present ();
         }
     }
 }

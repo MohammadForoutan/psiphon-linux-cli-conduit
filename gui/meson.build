@@ -50,6 +50,8 @@ sources = files(
   'src/services/notice-parser.vala',
   'src/services/stats-service.vala',
   'src/services/tunnel-manager.vala',
+  'src/services/system-proxy-service.vala',
+  'src/services/sing-box-manager.vala',
   'src/models/protocol-mode.vala',
   'src/models/region.vala',
   'src/models/tunnel-options.vala',
@@ -72,10 +74,28 @@ executable(
   install: true,
 )
 
-install_data(
+fs = import('fs')
+config_assets = [
   '../configs/psiphon.config',
-  '../configs/server_list_compressed',
+]
+list_source = project_root / 'configs' / 'server_list_compressed'
+if fs.exists(list_source)
+  config_assets += '../configs/server_list_compressed'
+endif
+
+install_data(
+  config_assets,
   install_dir: get_option('datadir') / 'psiphon-cli-gui' / 'configs',
 )
 
+if fs.exists(list_source)
+  install_data(
+    list_source,
+    install_dir: get_option('datadir') / 'psiphon-cli-gui' / 'configs',
+    rename: 'remote_server_list',
+  )
+endif
+
 subdir('data')
+
+summary('Psiphon core install path', get_option('prefix') / get_option('libdir') / 'psiphon-cli-gui' / 'psiphon-tunnel-core-x86_64', section: 'Paths')

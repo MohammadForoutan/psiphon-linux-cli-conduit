@@ -29,6 +29,10 @@ const COMMANDS = {
         type: "boolean",
         default: false,
       },
+      "beast-mode": {
+        type: "boolean",
+        default: true,
+      },
     },
   },
   disconnect: {
@@ -206,6 +210,7 @@ Connect options:
   -p, --upstream-proxy <url>  upstream proxy URL (e.g. http://proxy:8080 or socks5://127.0.0.1:1080)
   --enable-timeout            use psiphon-tunnel-core establish tunnel timeout (disabled by default)
   --enable-lan                listen on all interfaces so HTTP/SOCKS proxies are reachable on the LAN
+  --no-beast-mode             disable aggressive establishment (try all protocols on all servers)
 
 Logs options:
   -n, --lines <number>        number of recent log lines to show initially`);

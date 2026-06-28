@@ -30,6 +30,12 @@ function resolveDownloadFilename(configDir) {
 }
 
 function findSource() {
+  const repoOnly = process.argv.includes("--repo-only");
+
+  if (repoOnly && fs.existsSync(destPath)) {
+    return destPath;
+  }
+
   const explicit = process.env.PSIPHON_SERVER_LIST?.trim();
   if (explicit) {
     if (fs.existsSync(explicit)) {

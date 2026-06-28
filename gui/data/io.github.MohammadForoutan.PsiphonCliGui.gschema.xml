@@ -26,9 +26,26 @@
       <default>false</default>
       <summary>Enable LAN mode</summary>
     </key>
+    <key name="enable-beast-mode" type="b">
+      <default>true</default>
+      <summary>Enable beast mode</summary>
+      <description>Aggressive establishment: try all protocols on all servers.</description>
+    </key>
     <key name="enable-timeout" type="b">
       <default>false</default>
       <summary>Enable establish tunnel timeout</summary>
+    </key>
+    <key name="enable-system-proxy" type="b">
+      <default>false</default>
+      <summary>Enable desktop system proxy on connect</summary>
+    </key>
+    <key name="enable-tun" type="b">
+      <default>false</default>
+      <summary>Enable TUN routing via sing-box on connect</summary>
+    </key>
+    <key name="sing-box-path" type="s">
+      <default>''</default>
+      <summary>Custom sing-box binary path</summary>
     </key>
   </schema>
 </schemalist>

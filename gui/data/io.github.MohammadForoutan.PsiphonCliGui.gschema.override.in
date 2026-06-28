@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.MohammadForoutan.PsiphonCliGui" path="/io/github/MohammadForoutan/PsiphonCliGui/">
+    <key name="core-path" type="s">
+      <default>'@core_path@'</default>
+    </key>
+    <key name="sing-box-path" type="s">
+      <default>'@sing_box_path@'</default>
+    </key>
+  </schema>
+</schemalist>

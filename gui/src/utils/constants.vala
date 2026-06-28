@@ -3,6 +3,10 @@ namespace PsiphonCliGui.Constants {
     public const string SETTINGS_SCHEMA_ID = "io.github.MohammadForoutan.PsiphonCliGui";
 
     public const string PSIPHON_BIN = "psiphon-tunnel-core-x86_64";
+    public const string SING_BOX_BIN = "sing-box";
+    public const string SING_BOX_CONFIG_FILE = "sing-box.json";
+    public const string SING_BOX_PID_FILE = "sing-box.pid";
+    public const string SING_BOX_TUN_INTERFACE = "psiphon0";
     public const string CONFIG_FILE = "psiphon.config";
     public const string STATS_FILE = "stats.json";
     public const string PID_FILE = "psiphon.pid";

@@ -19,8 +19,13 @@
     "prebuild:win": "node scripts/generate-version.js && node scripts/bundle-server-list.js",
     "build:win": "pkg cli/index.js --targets node18-windows-x64 --output dist/psiphon-cli.exe --config package.json",
     "bundle-server-list": "node scripts/bundle-server-list.js",
+    "download-server-list": "node scripts/download-server-list.js",
+    "download-sing-box": "node scripts/download-sing-box.js",
+    "prepare:rpm": "node scripts/download-server-list.js && node scripts/download-sing-box.js",
     "build:gui": "bash scripts/package-gui.sh",
     "package:gui": "bash scripts/package-gui.sh",
+    "build:gui:rpm": "bash scripts/build-gui-rpm.sh",
+    "build:gui:rpm:offline": "bash scripts/build-gui-rpm.sh --offline",
     "build:all": "npm run build && npm run build:gui"
   },
   "keywords": [

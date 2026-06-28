@@ -41,6 +41,7 @@ async function runConnectCommand(options) {
       upstreamProxyUrl,
       enableTimeout: Boolean(options.enableTimeout),
       enableLan: Boolean(options.enableLan),
+      enableBeastMode: options.beastMode !== false,
     });
   } catch (err) {
     console.error(err.message);

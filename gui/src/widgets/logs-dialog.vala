@@ -3,10 +3,10 @@ namespace PsiphonCliGui {
         private Gtk.TextView text_view;
         private Gtk.TextBuffer text_buffer;
 
-        public LogsWindow (Gtk.Window parent) {
+        public LogsWindow (Gtk.Window parent, string window_title = "Tunnel logs") {
             Object (
                 transient_for: parent,
-                title: "Tunnel logs",
+                title: window_title,
                 hide_on_close: true
             );
 
