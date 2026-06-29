@@ -4,7 +4,7 @@ ROOT := ..
 PREFIX ?= /usr/local
 DESTDIR ?=
 
-.PHONY: all help setup reconfigure bundle build run install package clean distclean
+.PHONY: all help setup reconfigure bundle build run install package rpm rpm-offline clean distclean
 
 .DEFAULT_GOAL := help
 
@@ -18,6 +18,8 @@ help:
 	@echo "  make run          Build and launch ./$(BIN)"
 	@echo "  make install      Install to PREFIX ($(PREFIX))"
 	@echo "  make package      Build and create ../dist/psiphon-cli-gui-*.tar.gz"
+	@echo "  make rpm          Build Fedora/RHEL RPM (online: refreshes missing assets)"
+	@echo "  make rpm-offline  Build RPM offline (requires npm run prepare:rpm first)"
 	@echo "  make clean        Remove compiled objects"
 	@echo "  make distclean    Remove $(BUILD_DIR)/ entirely"
 	@echo ""
@@ -48,6 +50,12 @@ install: build
 
 package:
 	bash $(ROOT)/scripts/package-gui.sh
+
+rpm:
+	bash $(ROOT)/scripts/build-gui-rpm.sh
+
+rpm-offline:
+	bash $(ROOT)/scripts/build-gui-rpm.sh --offline
 
 clean:
 	@if [ -d $(BUILD_DIR) ]; then meson compile -C $(BUILD_DIR) --clean; fi

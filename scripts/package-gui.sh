@@ -42,6 +42,11 @@ ensure_tool () {
 mkdir -p "$DIST"
 rm -rf "$APPDIR"
 
+if [[ ! -x "$ROOT/sing-box" ]]; then
+  echo "Downloading sing-box for portable bundle..."
+  node "$ROOT/scripts/download-sing-box.js"
+fi
+
 cd "$GUI"
 make build
 DESTDIR="$APPDIR" make install
@@ -58,6 +63,14 @@ EXECUTABLE="$APPDIR$PREFIX/bin/psiphon-cli-gui"
 
 if [[ -x "$ROOT/psiphon-tunnel-core-x86_64" ]]; then
   cp "$ROOT/psiphon-tunnel-core-x86_64" "$APPDIR$PREFIX/bin/"
+fi
+
+if [[ -x "$ROOT/sing-box" ]]; then
+  mkdir -p "$APPDIR$PREFIX/lib/psiphon-cli-gui"
+  cp "$ROOT/sing-box" "$APPDIR$PREFIX/lib/psiphon-cli-gui/"
+  if [[ -f "$ROOT/libcronet.so" ]]; then
+    cp "$ROOT/libcronet.so" "$APPDIR$PREFIX/lib/psiphon-cli-gui/"
+  fi
 fi
 
 if [[ -f "$DESKTOP_FILE" && -x "$EXECUTABLE" ]]; then

@@ -6,6 +6,7 @@ namespace PsiphonCliGui {
         private Gtk.Label uptime_value;
         private Gtk.Label proxy_value;
         private Gtk.Label regions_value;
+        private Gtk.Label beast_mode_value;
         private Gtk.Label traffic_value;
 
         public StatsPanel () {
@@ -39,7 +40,8 @@ namespace PsiphonCliGui {
             uptime_value = add_cell (grid, 1, 1, "Uptime");
             proxy_value = add_cell (grid, 2, 0, "Proxies");
             regions_value = add_cell (grid, 2, 1, "Regions");
-            traffic_value = add_cell (grid, 3, 0, "Traffic", 2);
+            beast_mode_value = add_cell (grid, 3, 0, "Beast mode");
+            traffic_value = add_cell (grid, 4, 0, "Traffic", 2);
 
             show_disconnected ();
         }
@@ -51,6 +53,7 @@ namespace PsiphonCliGui {
             uptime_value.label = "-";
             proxy_value.label = "HTTP 127.0.0.1:8081 · SOCKS 127.0.0.1:1081";
             regions_value.label = "- → -";
+            beast_mode_value.label = "-";
             traffic_value.label = "↓ 0 B/s · ↑ 0 B/s";
         }
 
@@ -68,6 +71,7 @@ namespace PsiphonCliGui {
             }
 
             regions_value.label = "%s → %s".printf (stats.client_region, egress);
+            beast_mode_value.label = stats.beast_mode;
             traffic_value.label = "↓ %s (%s) · ↑ %s (%s)".printf (
                 Format.bytes_per_sec (stats.downstream_bps),
                 Format.bytes (stats.total_down_bytes),

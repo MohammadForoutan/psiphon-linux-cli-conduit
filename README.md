@@ -200,7 +200,9 @@ PSIPHON_UPSTREAM_PROXY=socks5://proxy:1080 psiphon-cli connect
 
 ### Server list bundling
 
-Before packaging, both CLI and GUI builds copy the cached server list from your machine into `configs/server_list_compressed` (from `~/.config/psiphon-cli/remote_server_list` by default). **No download is performed at build time.**
+For normal CLI/GUI builds, the cached server list is copied from your machine into `configs/server_list_compressed` (from `~/.config/psiphon-cli/remote_server_list` by default). **No download is performed** unless you run `npm run download-server-list`.
+
+**RPM builds** always download a fresh list before packaging (`npm run build:gui:rpm`). On first launch after install, the GUI seeds `~/.config/psiphon-cli/remote_server_list` from the packaged default.
 
 ```bash
 npm run bundle-server-list
@@ -241,6 +243,7 @@ make install  # optional, PREFIX=/usr/local by default
 | `make bundle` | Copy local server list only |
 | `make install` | Install to system prefix (use `DESTDIR` for staging) |
 | `make package` | Create `../dist/psiphon-cli-gui-<version>-linux-x64.tar.gz` |
+| `make rpm` | Build Fedora/RHEL `.rpm` (requires `psiphon-tunnel-core-x86_64` in repo root) |
 | `make clean` | Remove compiled objects |
 | `make distclean` | Remove `build/` |
 
@@ -279,6 +282,7 @@ sudo tar xzf psiphon-cli-gui-*.tar.gz -C /
 | `npm run build:win` | `dist/psiphon-cli.exe` |
 | `npm run build:gui` | `dist/psiphon-cli-gui-<version>-linux-x64.tar.gz` |
 | `npm run package:gui` | Same as `build:gui` |
+| `npm run build:gui:rpm` | Build GUI `.rpm` into `dist/` |
 | `npm run build:all` | CLI binary + GUI tarball |
 
 ```bash

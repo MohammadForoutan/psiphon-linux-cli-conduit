@@ -34,6 +34,11 @@ Thumbs.db
 psiphon-tunnel-core*
 direct-psiphon/psiphon-tunnel-core*
 
+# sing-box binary (npm run download-sing-box)
+/sing-box
+
+/libcronet.so
+
 # Cursor Plans
 .cursor/plans
 

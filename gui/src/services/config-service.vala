@@ -52,20 +52,13 @@ namespace PsiphonCliGui {
                 copy_file (default_config_path, user_config_path);
             }
 
-            try {
-                string default_list_path = find_default_asset ("server_list_compressed");
-                string user_list_path = Path.build_filename (config_dir, Constants.SERVER_LIST_FILE);
-                if (!FileUtils.test (user_list_path, FileTest.EXISTS)) {
-                    copy_file (default_list_path, user_list_path);
-                }
-            } catch (Error err) {
-                warning ("Could not seed server list: %s", err.message);
-            }
+            seed_server_list (user_config_path);
         }
 
         public string build_config (TunnelOptions options) throws Error {
             apply_config_dir (options.config_dir);
             ensure_seed_files ();
+            ensure_server_list_ready ();
 
             string contents;
             FileUtils.get_contents (config_path (), out contents);
@@ -87,6 +80,12 @@ namespace PsiphonCliGui {
                 root.set_string_member ("ListenInterface", "any");
             } else {
                 root.remove_member ("ListenInterface");
+            }
+
+            if (options.enable_beast_mode) {
+                root.set_boolean_member ("AggressiveEstablishment", true);
+            } else {
+                root.remove_member ("AggressiveEstablishment");
             }
 
             root.remove_member ("LimitTunnelProtocols");
@@ -141,6 +140,12 @@ namespace PsiphonCliGui {
                 "/usr/bin/%s".printf (Constants.PSIPHON_BIN)
             };
 
+            foreach (string candidate in RuntimePaths.installed_core_path_candidates ()) {
+                if (FileUtils.test (candidate, FileTest.IS_EXECUTABLE)) {
+                    return candidate;
+                }
+            }
+
             foreach (string candidate in candidates) {
                 if (FileUtils.test (candidate, FileTest.IS_EXECUTABLE)) {
                     return candidate;
@@ -148,6 +153,91 @@ namespace PsiphonCliGui {
             }
 
             return "";
+        }
+
+        private void seed_server_list (string user_config_path) {
+            try {
+                string list_filename = resolve_server_list_filename (user_config_path);
+                string default_list_path = find_default_server_list_asset ();
+                string user_list_path = Path.build_filename (config_dir, list_filename);
+
+                if (should_seed_server_list (user_list_path, default_list_path)) {
+                    copy_file (default_list_path, user_list_path);
+                }
+            } catch (Error err) {
+                warning ("Could not seed server list: %s", err.message);
+            }
+        }
+
+        private void ensure_server_list_ready () throws Error {
+            string list_filename = resolve_server_list_filename (config_path ());
+            string user_list_path = Path.build_filename (config_dir, list_filename);
+
+            if (!FileUtils.test (user_list_path, FileTest.EXISTS)) {
+                throw new ConfigError.DEFAULT_CONFIG_MISSING (
+                    "Server list '%s' was not found in %s. Install the GUI package assets or use Settings → Refresh server list.",
+                    list_filename,
+                    config_dir
+                );
+            }
+
+            int64 list_size = query_file_size (user_list_path);
+            if (list_size <= 0) {
+                throw new ConfigError.DEFAULT_CONFIG_MISSING (
+                    "Server list '%s' in %s is empty. Use Settings → Refresh server list or reinstall the package.",
+                    list_filename,
+                    config_dir
+                );
+            }
+        }
+
+        private string resolve_server_list_filename (string config_file_path) throws Error {
+            string contents;
+            FileUtils.get_contents (config_file_path, out contents);
+
+            var parser = new Json.Parser ();
+            parser.load_from_data (contents, contents.length);
+            Json.Object root = parser.get_root ().get_object ();
+
+            if (root.has_member ("RemoteServerListDownloadFilename")) {
+                string filename = root.get_string_member ("RemoteServerListDownloadFilename").strip ();
+                if (filename.length > 0) {
+                    return filename;
+                }
+            }
+
+            return Constants.SERVER_LIST_FILE;
+        }
+
+        private bool should_seed_server_list (string user_list_path, string default_list_path) {
+            if (!FileUtils.test (user_list_path, FileTest.EXISTS)) {
+                return true;
+            }
+
+            try {
+                int64 user_size = query_file_size (user_list_path);
+                if (user_size <= 0) {
+                    return true;
+                }
+
+                int64 default_size = query_file_size (default_list_path);
+                if (default_size > 1024 && user_size < default_size / 4) {
+                    return true;
+                }
+            } catch (Error err) {
+                warning ("Could not inspect server list sizes: %s", err.message);
+                return true;
+            }
+
+            return false;
+        }
+
+        private string find_default_server_list_asset () throws Error {
+            try {
+                return find_default_asset (Constants.SERVER_LIST_FILE);
+            } catch (Error err) {
+                return find_default_asset ("server_list_compressed");
+            }
         }
 
         private string find_default_asset (string name) throws Error {
@@ -162,6 +252,12 @@ namespace PsiphonCliGui {
                 "Default asset '%s' was not found. Run from the portable bundle or install the GUI assets.",
                 name
             );
+        }
+
+        private int64 query_file_size (string path) throws Error {
+            var file = File.new_for_path (path);
+            FileInfo info = file.query_info ("standard::size", FileQueryInfoFlags.NONE);
+            return info.get_size ();
         }
 
         private void copy_file (string source, string dest) throws Error {

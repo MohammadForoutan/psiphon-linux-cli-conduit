@@ -2,12 +2,11 @@ namespace PsiphonCliGui {
     public class ConnectionPanel : Gtk.Box {
         public signal void connect_requested ();
         public signal void disconnect_requested ();
-        public signal void logs_requested ();
 
         private Gtk.Button connect_button;
-        private Gtk.Button logs_button;
         private Gtk.Label status_label;
         private Gtk.Label ip_label;
+        private Gtk.Label routing_label;
         private bool running = false;
 
         public ConnectionPanel () {
@@ -36,15 +35,6 @@ namespace PsiphonCliGui {
             });
             actions.append (connect_button);
 
-            logs_button = new Gtk.Button ();
-            logs_button.add_css_class ("circular");
-            logs_button.set_icon_name ("text-x-generic-symbolic");
-            logs_button.tooltip_text = "View logs";
-            logs_button.width_request = 72;
-            logs_button.height_request = 72;
-            logs_button.clicked.connect (() => logs_requested ());
-            actions.append (logs_button);
-
             status_label = new Gtk.Label ("Ready to connect");
             status_label.add_css_class ("title-4");
             status_label.halign = Gtk.Align.CENTER;
@@ -55,6 +45,12 @@ namespace PsiphonCliGui {
             ip_label.halign = Gtk.Align.CENTER;
             ip_label.selectable = true;
             append (ip_label);
+
+            routing_label = new Gtk.Label ("");
+            routing_label.add_css_class ("caption");
+            routing_label.add_css_class ("dim-label");
+            routing_label.halign = Gtk.Align.CENTER;
+            append (routing_label);
         }
 
         public void set_running (bool running) {
@@ -74,6 +70,7 @@ namespace PsiphonCliGui {
                 connect_button.tooltip_text = "Connect";
                 status_label.label = "Ready to connect";
                 ip_label.label = "";
+                routing_label.label = "";
             }
         }
 
@@ -97,9 +94,17 @@ namespace PsiphonCliGui {
             } else if (stats.status == "connecting") {
                 status_label.label = "Connecting...";
                 ip_label.label = "";
+                routing_label.label = "";
             } else if (stats.status == "disconnecting" || stats.status == "exiting") {
                 status_label.label = "Disconnecting...";
                 ip_label.label = "";
+                routing_label.label = "";
+            }
+
+            if (stats.routing_status != "-" && stats.routing_status.length > 0) {
+                routing_label.label = stats.routing_status;
+            } else {
+                routing_label.label = "";
             }
         }
     }

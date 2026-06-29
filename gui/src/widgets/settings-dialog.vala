@@ -13,7 +13,17 @@ namespace PsiphonCliGui {
         private Adw.EntryRow core_path_row;
         private Adw.EntryRow config_dir_row;
         private Adw.SwitchRow lan_row;
+        private Adw.SwitchRow beast_mode_row;
         private Adw.SwitchRow timeout_row;
+        private Adw.SwitchRow system_proxy_row;
+        private Adw.SwitchRow tun_row;
+        private Adw.EntryRow sing_box_path_row;
+        private Adw.ActionRow refresh_row;
+        private Gtk.Stack refresh_stack;
+        private Gtk.Button refresh_button;
+        private Gtk.Spinner refresh_spinner;
+        private Gtk.Label refresh_busy_label;
+        private bool refresh_in_progress = false;
         private Region[] regions;
 
         public SettingsDialog (
@@ -61,6 +71,36 @@ namespace PsiphonCliGui {
             upstream_proxy_row.text = "";
             general.add (upstream_proxy_row);
 
+            beast_mode_row = new Adw.SwitchRow ();
+            beast_mode_row.title = "Beast mode";
+            beast_mode_row.subtitle = "Aggressive establishment: try all protocols on all servers";
+            general.add (beast_mode_row);
+
+            var routing = new Adw.PreferencesGroup ();
+            routing.title = "Routing";
+            routing.description = "Enable either or both. Each runs independently after connect.";
+            prefs.add (routing);
+
+            system_proxy_row = new Adw.SwitchRow ();
+            system_proxy_row.title = "System proxy";
+            system_proxy_row.subtitle = "Set GNOME desktop proxy to the Psiphon local ports";
+            routing.add (system_proxy_row);
+
+            tun_row = new Adw.SwitchRow ();
+            tun_row.title = "TUN routing";
+            tun_row.subtitle = "Route all traffic through sing-box into the Psiphon SOCKS proxy";
+            routing.add (tun_row);
+            tun_row.notify["active"].connect (() => update_routing_rows ());
+
+            sing_box_path_row = new Adw.EntryRow ();
+            sing_box_path_row.title = "sing-box path";
+            var sing_box_browse = new Gtk.Button.from_icon_name ("folder-open-symbolic");
+            sing_box_browse.valign = Gtk.Align.CENTER;
+            sing_box_browse.tooltip_text = "Browse for sing-box";
+            sing_box_browse.clicked.connect (() => browse_sing_box_path.begin ());
+            sing_box_path_row.add_suffix (sing_box_browse);
+            routing.add (sing_box_path_row);
+
             var advanced = new Adw.PreferencesGroup ();
             advanced.title = "Advanced";
             advanced.description = "Core binary, config directory, and tunnel behavior.";
@@ -98,12 +138,37 @@ namespace PsiphonCliGui {
             actions.title = "Maintenance";
             prefs.add (actions);
 
-            var refresh_button = new Gtk.Button.with_label ("Refresh");
+            refresh_button = new Gtk.Button.with_label ("Refresh");
             refresh_button.valign = Gtk.Align.CENTER;
             refresh_button.clicked.connect (() => refresh_server_list.begin ());
-            var refresh_row = new Adw.ActionRow ();
+
+            refresh_spinner = new Gtk.Spinner ();
+            refresh_spinner.valign = Gtk.Align.CENTER;
+            refresh_spinner.width_request = 24;
+            refresh_spinner.height_request = 24;
+
+            refresh_busy_label = new Gtk.Label ("Downloading…");
+            refresh_busy_label.valign = Gtk.Align.CENTER;
+            refresh_busy_label.add_css_class ("accent");
+
+            var refresh_busy_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
+            refresh_busy_box.valign = Gtk.Align.CENTER;
+            refresh_busy_box.append (refresh_spinner);
+            refresh_busy_box.append (refresh_busy_label);
+
+            refresh_stack = new Gtk.Stack ();
+            refresh_stack.valign = Gtk.Align.CENTER;
+            refresh_stack.halign = Gtk.Align.END;
+            refresh_stack.transition_type = Gtk.StackTransitionType.CROSSFADE;
+            refresh_stack.transition_duration = 150;
+            refresh_stack.add_named (refresh_button, "idle");
+            refresh_stack.add_named (refresh_busy_box, "busy");
+            refresh_stack.visible_child_name = "idle";
+
+            refresh_row = new Adw.ActionRow ();
             refresh_row.title = "Server list";
             refresh_row.subtitle = "Download the latest official Psiphon server list.";
+            refresh_row.add_suffix (refresh_stack);
             refresh_row.activatable_widget = refresh_button;
             actions.add (refresh_row);
 
@@ -141,7 +206,12 @@ namespace PsiphonCliGui {
                 ? options.config_dir
                 : Constants.default_config_dir ();
             lan_row.active = options.enable_lan;
+            beast_mode_row.active = options.enable_beast_mode;
             timeout_row.active = options.enable_timeout;
+            system_proxy_row.active = options.enable_system_proxy;
+            tun_row.active = options.enable_tun;
+            sing_box_path_row.text = options.sing_box_path;
+            update_routing_rows ();
         }
 
         private void save_and_close () {
@@ -163,8 +233,35 @@ namespace PsiphonCliGui {
             }
             options.config_dir = config_dir;
             options.enable_lan = lan_row.active;
+            options.enable_beast_mode = beast_mode_row.active;
             options.enable_timeout = timeout_row.active;
+            options.enable_system_proxy = system_proxy_row.active;
+            options.enable_tun = tun_row.active;
+            options.sing_box_path = sing_box_path_row.text.strip ();
             return options;
+        }
+
+        private void update_routing_rows () {
+            sing_box_path_row.visible = tun_row.active;
+        }
+
+        private async void browse_sing_box_path () {
+            if (parent_window == null) {
+                return;
+            }
+
+            var dialog = new Gtk.FileDialog ();
+            dialog.title = "Select sing-box";
+
+            try {
+                File file = yield dialog.open (parent_window, null);
+                sing_box_path_row.text = file.get_path ();
+            } catch (Error err) {
+                if (err is IOError.CANCELLED) {
+                    return;
+                }
+                toast_overlay.add_toast (new Adw.Toast (err.message));
+            }
         }
 
         private async void browse_core_path () {
@@ -205,12 +302,45 @@ namespace PsiphonCliGui {
             }
         }
 
+        private void set_refresh_busy (bool busy) {
+            refresh_in_progress = busy;
+            refresh_button.sensitive = !busy;
+            refresh_row.activatable = !busy;
+
+            if (busy) {
+                refresh_stack.visible_child_name = "busy";
+                refresh_row.subtitle = "Downloading the latest official Psiphon server list…";
+                refresh_spinner.start ();
+            } else {
+                refresh_stack.visible_child_name = "idle";
+                refresh_row.subtitle = "Download the latest official Psiphon server list.";
+                refresh_spinner.stop ();
+            }
+        }
+
         private async void refresh_server_list () {
+            if (refresh_in_progress) {
+                return;
+            }
+
+            set_refresh_busy (true);
+            var progress_toast = new Adw.Toast ("Downloading server list…");
+            progress_toast.timeout = 0;
+            toast_overlay.add_toast (progress_toast);
+
             try {
                 string path = yield server_list_service.refresh_server_list ();
-                toast_overlay.add_toast (new Adw.Toast ("Server list saved to %s".printf (path)));
+                progress_toast.dismiss ();
+                var done_toast = new Adw.Toast ("Server list saved to %s".printf (path));
+                done_toast.timeout = 5;
+                toast_overlay.add_toast (done_toast);
             } catch (Error err) {
-                toast_overlay.add_toast (new Adw.Toast (err.message));
+                progress_toast.dismiss ();
+                var error_toast = new Adw.Toast (err.message);
+                error_toast.timeout = 6;
+                toast_overlay.add_toast (error_toast);
+            } finally {
+                set_refresh_busy (false);
             }
         }
 

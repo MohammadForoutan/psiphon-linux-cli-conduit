@@ -31,24 +31,24 @@ namespace PsiphonCliGui.RuntimePaths {
 
         if (exe_dir.length > 0) {
             return {
-                Path.build_filename (exe_dir, "configs"),
-                Path.build_filename (exe_dir, "..", "configs"),
+                "/usr/share/psiphon-cli-gui/configs",
+                "/usr/local/share/psiphon-cli-gui/configs",
                 Path.build_filename (exe_dir, "..", "share", "psiphon-cli-gui", "configs"),
                 Path.build_filename (exe_dir, "..", "..", "share", "psiphon-cli-gui", "configs"),
                 Path.build_filename (cwd, "configs"),
                 Path.build_filename (cwd, "..", "configs"),
                 Path.build_filename (cwd, "..", "..", "configs"),
-                "/usr/local/share/psiphon-cli-gui/configs",
-                "/usr/share/psiphon-cli-gui/configs"
+                Path.build_filename (exe_dir, "configs"),
+                Path.build_filename (exe_dir, "..", "configs")
             };
         }
 
         return {
+            "/usr/share/psiphon-cli-gui/configs",
+            "/usr/local/share/psiphon-cli-gui/configs",
             Path.build_filename (cwd, "configs"),
             Path.build_filename (cwd, "..", "configs"),
-            Path.build_filename (cwd, "..", "..", "configs"),
-            "/usr/local/share/psiphon-cli-gui/configs",
-            "/usr/share/psiphon-cli-gui/configs"
+            Path.build_filename (cwd, "..", "..", "configs")
         };
     }
 
@@ -75,6 +75,60 @@ namespace PsiphonCliGui.RuntimePaths {
             Path.build_filename (cwd, "..", "cli", "version.generated.json"),
             "/usr/local/share/psiphon-cli-gui/version.json",
             "/usr/share/psiphon-cli-gui/version.json"
+        };
+    }
+
+    public string[] installed_core_path_candidates () {
+        string exe_dir = executable_dir ();
+        if (exe_dir.length > 0) {
+            return {
+                Path.build_filename (exe_dir, Constants.PSIPHON_BIN),
+                Path.build_filename (exe_dir, "..", "lib", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename (exe_dir, "..", "lib64", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename (exe_dir, "..", "libexec", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "lib", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "lib64", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "libexec", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "local", "lib", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "local", "lib64", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+                Path.build_filename ("/usr", "local", "bin", Constants.PSIPHON_BIN)
+            };
+        }
+
+        return {
+            Path.build_filename ("/usr", "lib", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+            Path.build_filename ("/usr", "lib64", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+            Path.build_filename ("/usr", "libexec", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+            Path.build_filename ("/usr", "local", "lib", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+            Path.build_filename ("/usr", "local", "lib64", "psiphon-cli-gui", Constants.PSIPHON_BIN),
+            Path.build_filename ("/usr", "local", "bin", Constants.PSIPHON_BIN)
+        };
+    }
+
+    public string[] installed_sing_box_path_candidates () {
+        string exe_dir = executable_dir ();
+        if (exe_dir.length > 0) {
+            return {
+                Path.build_filename (exe_dir, Constants.SING_BOX_BIN),
+                Path.build_filename (exe_dir, "..", "lib", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename (exe_dir, "..", "lib64", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename (exe_dir, "..", "libexec", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "lib", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "lib64", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "libexec", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "local", "lib", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "local", "lib64", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+                Path.build_filename ("/usr", "local", "bin", Constants.SING_BOX_BIN)
+            };
+        }
+
+        return {
+            Path.build_filename ("/usr", "lib", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+            Path.build_filename ("/usr", "lib64", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+            Path.build_filename ("/usr", "libexec", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+            Path.build_filename ("/usr", "local", "lib", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+            Path.build_filename ("/usr", "local", "lib64", "psiphon-cli-gui", Constants.SING_BOX_BIN),
+            Path.build_filename ("/usr", "local", "bin", Constants.SING_BOX_BIN)
         };
     }
 

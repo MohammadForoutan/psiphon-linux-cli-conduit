@@ -8,6 +8,10 @@ namespace PsiphonCliGui {
                 return false;
             }
 
+            if (!trimmed.has_prefix ("{")) {
+                return apply_diagnostic_line (trimmed, stats);
+            }
+
             try {
                 var parser = new Json.Parser ();
                 parser.load_from_data (trimmed, trimmed.length);
@@ -135,6 +139,33 @@ namespace PsiphonCliGui {
                 }
             } catch (Error err) {
                 return false;
+            }
+
+            return false;
+        }
+
+        private bool apply_diagnostic_line (string line, TunnelStats stats) {
+            try {
+                if ("beast mode active (workers:" in line) {
+                    var regex = new Regex ("\\(workers: (\\d+)\\)");
+                    MatchInfo match;
+                    if (regex.match (line, 0, out match)) {
+                        stats.beast_mode = "active · %s workers".printf (match.fetch (1));
+                        return true;
+                    }
+                } else if ("beast mode connected (attempts:" in line) {
+                    var regex = new Regex ("\\(attempts: (\\d+), servers: (\\d+)\\)");
+                    MatchInfo match;
+                    if (regex.match (line, 0, out match)) {
+                        stats.beast_mode = "connected · %s attempts · %s servers".printf (
+                            match.fetch (1),
+                            match.fetch (2)
+                        );
+                        return true;
+                    }
+                }
+            } catch (RegexError err) {
+                warning ("Could not parse diagnostic line: %s", err.message);
             }
 
             return false;
